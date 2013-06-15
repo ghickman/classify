@@ -4,13 +4,7 @@ import inspect
 import os
 import pprint
 import pydoc
-import string
 import sys
-
-
-# attribute = {'name': '', 'default': '', 'defined': ''}
-# TODO: Method ordering should be done by enumerating the parents list
-# method = {'name': '', 'docstring': '', 'order': 0, 'defined': ''}
 
 
 def docclass(klass, obj, name=None, mod=None, *ignored):
@@ -158,8 +152,10 @@ def dispatch(klass, obj, name=None, *args):
     if isinstance(obj, property): return docproperty(*args)
     return docother(*args)
 
-def run(thing, forceload=0):
-    """Render text documentation, given an obj or a path to an obj."""
+def run():
+    """Build a dictionary mapping of a class."""
+    if any([arg.startswith('django') for arg in sys.argv[1:]]):
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'classy.contrib.django.settings'
     klass = {
         'attributes': [],
         'methods': [],
@@ -167,7 +163,7 @@ def run(thing, forceload=0):
         'parents': [],
     }
 
-    obj, name = pydoc.resolve(thing, forceload)
+    obj, name = pydoc.resolve(sys.argv[1], forceload=0)
     desc = pydoc.describe(obj)
     module = inspect.getmodule(obj)
     if name and '.' in name:
@@ -188,9 +184,13 @@ def run(thing, forceload=0):
         # dispatch its available methods instead of its value.
         print('instance')
         obj = type(obj)
-    return dispatch(klass, obj, name)
+    klass_description = dispatch(klass, obj, name)
+
+    # try:
+    pprint.pprint(klass_description, width=300)
+    # except ImportError:
+    #     sys.stderr.write('Could not import: {0}\n'.format(sys.argv[1]))
+    #     sys.exit(1)
 
 if __name__ == '__main__':
-    if any([arg.startswith('django') for arg in sys.argv[1:]]):
-        os.environ['DJANGO_SETTINGS_MODULE'] = 'contrib.django.settings'
-    pprint.pprint(run(sys.argv[1]))
+    run()
