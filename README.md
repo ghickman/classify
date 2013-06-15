@@ -1,7 +1,7 @@
-classy-cli
-==========
+Classy
+======
 
-Generate Class documentation python Classes.
+Generate concrete Class documentation for python Classes.
 
 Usage:
 
