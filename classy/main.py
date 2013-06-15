@@ -14,82 +14,19 @@ import sys
 
 
 def docclass(klass, obj, name=None, mod=None, *ignored):
-    """Produce text documentation for a given class obj."""
-    import pdb;pdb.set_trace()
-    realname = obj.__name__
-    name = name or realname
-    bases = obj.__bases__
-    klass['name'] = realname
-
-    def makename(c, m=obj.__module__):
-        return pydoc.classname(c, m)
-
-    if name == realname:
-        title = 'class ' + realname
-    else:
-        title = name + ' = class ' + realname
-    if bases:
-        parents = map(makename, bases)
-        title = title + '(%s)' % string.join(parents, ', ')
-
-    doc = pydoc.getdoc(obj)
-    klass['docstring'] = doc
-    contents = doc and [doc + '\n'] or []
-    push = contents.append
-
-    # List the mro, if non-trivial.
     mro = collections.deque(inspect.getmro(obj))
-    klass['parents'].extend([k.__name__ for k in mro])
-    if len(mro) > 2:
-        push("Method resolution order:")
-        for base in mro:
-            push('    ' + makename(base))
-        push('')
 
-    def spill(msg, attrs, predicate):
-        ok, attrs = pydoc._split_list(attrs, predicate)
-        if ok:
-            push(msg)
-            for name, kind, homecls, value in ok:
-                push(dispatch(getattr(obj, name),
-                                   name, mod, obj))
-        return attrs
-
-    def spilldescriptors(msg, attrs, predicate):
-        ok, attrs = pydoc._split_list(attrs, predicate)
-        if ok:
-            push(msg)
-            for name, kind, homecls, value in ok:
-                push(_docdescriptor(name, value, mod))
-        return attrs
-
-    def spilldata(msg, attrs, predicate):
-        ok, attrs = pydoc._split_list(attrs, predicate)
-        for attr in ok:
-            klass['attributes'].append(build_attributes(obj, ok))
-
-        if ok:
-            push(msg)
-            for name, kind, homecls, value in ok:
-                if (hasattr(value, '__call__') or
-                        inspect.isdatadescriptor(value)):
-                    # TODO: Work out when/why this is called
-                    doc = pydoc.getdoc(value)
-                else:
-                    doc = None
-                push(docother(getattr(obj, name),
-                              name, mod, maxlen=70, doc=doc) + '\n')
-        return attrs
+    klass.update({
+        'name': obj.__name__,
+        'docstring': pydoc.getdoc(obj),
+        'parents': [k.__name__ for k in mro]
+    })
 
     attrs = filter(lambda data: pydoc.visiblename(data[0], obj=obj),
                    pydoc.classify_class_attrs(obj))
 
-    # everything runs from this loop
-    while attrs:
-        if mro:
-            thisclass = mro.popleft()
-        else:
-            thisclass = attrs[0][2]
+    while attrs:  # the loop of magic
+        thisclass = mro.popleft() if mro else attrs[0][2]
         attrs, inherited = pydoc._split_list(attrs, lambda t: t[2] is thisclass)
 
         if thisclass is __builtin__.object:
@@ -203,7 +140,6 @@ def build_methods(methods, parents):
             'order': parents.index(method[2].__name__),
             'defined': method[2].__name__,
         }
-
 
 def dispatch(klass, obj, name=None, *args):
     """Generate documentation for an obj."""
