@@ -5,6 +5,8 @@ import SocketServer
 import sys
 import webbrowser
 
+from jinja2 import Template
+
 from library import build
 
 
@@ -30,8 +32,12 @@ def run():
         sys.stderr.write('Could not import: {0}\n'.format(sys.argv[1]))
         sys.exit(1)
 
+    with open(os.path.join(os.getcwd(), 'classy', 'template.html'), 'r') as f:
+        template = Template(f.read())
+    output = template.render(object=structure)
+
     with open(os.path.join(os.getcwd(), 'classy.html'), 'w') as f:
-        f.write(str(structure))
+        f.write(output)
 
     if args.serve:
         serve(args.port)
