@@ -1,0 +1,32 @@
+<h2>Attributes</h2>
+<table>
+    <thead>
+        <tr>
+            <th>&nbsp;</th>
+            <th>Defined in</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for attribute in object.attributes %}
+        <tr>
+            <td>
+                <code class="attribute{%if attribute.overridden %} overridden{% endif %}">
+                    {{ attribute.name }} = {{ attribute.default }}
+                </code>
+            </td>
+            <td>{{ attribute.defined }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<h2>Methods</h2>
+{% for method in object.methods %}
+<div class="method">
+    <h3>{{ method.name }}{{ method.arguments }}</h3>
+    <p>{{ method.docstring|e }}</p>
+    <p>Found on lines {{ method.lines.start }} to {{ method.lines.start+method.lines.total }} of {{ method.file }}</p>
+    <pre>{{ method.code }}</pre>
+</div>
+{% endfor %}
