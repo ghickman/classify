@@ -13,6 +13,7 @@ Usage:
 
 
 TODO:
-* `--serve` spins up a `SimpleHTTPServer` on 8000 and opens with `webbrowser`
-* `--port` as an extra option to `--server` to set the port
-* Abstract front end bits away and move rest into `libclassy`
+* Abstract front end bits away and move rest into `libpydoc`
+* Add config support
+* Let user choose output file path
+* Let user choose output template
