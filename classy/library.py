@@ -126,11 +126,23 @@ def build_attributes(attributes, obj):
 
 def build_methods(methods, parents):
     for method in methods:
+        func = getattr(method[2], method[0])
+        # Get the method arguments
+        args, varargs, keywords, defaults = inspect.getargspec(func)
+        arguments = inspect.formatargspec(args, varargs=varargs, varkw=keywords, defaults=defaults)
+
+        # Get source line details
+        lines, start_line = inspect.getsourcelines(func)
+
         yield {
             'name': method[0],
             'docstring': pydoc.getdoc(method[3]),
             'order': parents.index(method[2].__name__),
             'defined': method[2].__name__,
+            'arguments': arguments,
+            'code': ''.join(lines),
+            'lines': {'start': start_line, 'total': len(lines)},
+            'file': inspect.getsourcefile(func)
         }
 
 def dispatch(klass, obj, name=None, *args):
