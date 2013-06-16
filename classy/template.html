@@ -24,7 +24,7 @@
 <h2>Methods</h2>
 {% for method in object.methods %}
 <div class="method">
-    <h3>{{ method.name }}{{ method.arguments }}</h3>
+    <h3>{{ method.name }}{{ method.arguments }} [{{ method.defined }}]</h3>
     <p>{{ method.docstring|e }}</p>
     <p>Found on lines {{ method.lines.start }} to {{ method.lines.start+method.lines.total }} of {{ method.file }}</p>
     <pre>{{ method.code }}</pre>
