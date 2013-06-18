@@ -1,32 +1,78 @@
-<h2>Attributes</h2>
-<table>
-    <thead>
-        <tr>
-            <th>&nbsp;</th>
-            <th>Defined in</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for attribute in object.attributes %}
-        <tr>
-            <td>
-                <code class="attribute{%if attribute.overridden %} overridden{% endif %}">
-                    {{ attribute.name }} = {{ attribute.default }}
-                </code>
-            </td>
-            <td>{{ attribute.defined }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>{{ klass.name }}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- Le styles from Twitter Bootstrap-->
+    <link href="{{ STATIC_URL }}bootstrap.css" rel="stylesheet">
+    <link href="{{ STATIC_URL }}bootstrap-responsive.css" rel="stylesheet">
+    <link href="{{ STATIC_URL }}style.css" rel="stylesheet">
+    <link href="{{ STATIC_URL }}manni.css" rel="stylesheet">
 
-<h2>Methods</h2>
-{% for method in object.methods %}
-<div class="method">
-    <h3>{{ method.name }}{{ method.arguments }} [{{ method.defined }}]</h3>
-    <p>{{ method.docstring|e }}</p>
-    <p>Found on lines {{ method.lines.start }} to {{ method.lines.start+method.lines.total }} of {{ method.file }}</p>
-    <pre>{{ method.code }}</pre>
-</div>
-{% endfor %}
+    {% if push_state_url %}
+        <link rel="canonical" href="{{ push_state_url }}">
+        <script type="text/javascript">
+            window.history.replaceState({}, '', '{{ push_state_url }}');
+        </script>
+    {% endif %}
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="{{ STATIC_URL }}jquery-1.7.1.min.js"><\/script>');</script>
+    <script src="{{ STATIC_URL }}bootstrap-collapse.js"></script>
+    <script src="{{ STATIC_URL }}modernizr-2.5.3.min.js"></script>
+    <script src="{{ STATIC_URL }}bootstrap-dropdowns.js"></script>
+    <script>$('.dropdown-toggle').dropdown()</script>
+</head>
+<body>
+    <div class="container">
+        <article id="main">
+            {% if klass.attributes %}
+                <h2>Attributes</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th>Defined in</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for attribute in klass.attributes %}
+                        <tr>
+                            <td>
+                                <code class="attribute{%if attribute.overridden %} overridden{% endif %}">
+                                    {{ attribute.name }} = {{ attribute.default }}
+                                </code>
+                            </td>
+                            <td>{{ attribute.defined }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+
+            {% if klass.methods %}
+                <h2>Methods</h2>
+                {% for method in klass.methods %}
+                <div class="method">
+                    <h3>{{ method.name }}{{ method.arguments }} [{{ method.defined }}]</h3>
+                    <p>{{ method.docstring|e }}</p>
+                    <p>Found on lines {{ method.lines.start }} to {{ method.lines.start+method.lines.total }} of {{ method.file }}</p>
+                    <pre>{{ method.code }}</pre>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </article>
+
+        <footer>
+            <hr />
+            <p>Developed at <a href="http://refreshoxford.co.uk/">Refresh Oxford</a>.</p>
+            <p><a href="http://github.com/refreshoxford/django-cbv-inspector/">Source code</a> and
+                <a href="https://github.com/refreshoxford/django-cbv-inspector/graphs/contributors">Contributors</a>
+                on <a href="http://github.com/">GitHub</a>.</p>
+            <p>Sponsored by <a href="http://incuna.com/">Incuna</a>.</p>
+        </footer>
+    </div> <!-- /container -->
+</body>
+</html>
