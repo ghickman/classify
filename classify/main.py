@@ -32,7 +32,8 @@ def run():
         sys.stderr.write('Could not import: {0}\n'.format(sys.argv[1]))
         sys.exit(1)
 
-    with open(os.path.join(os.getcwd(), 'classify', 'template.html'), 'r') as f:
+    template_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'template.html')
+    with open(template_file, 'r') as f:
         template = Template(f.read())
     output = template.render(klass=structure)
 
