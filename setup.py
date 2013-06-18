@@ -9,4 +9,5 @@ setup(
     license='MIT',
     packages=find_packages(),
     entry_points={'console_scripts': ['classify=classify.main:run']},
+    install_requires=['jinja2>=2.7']
 )
