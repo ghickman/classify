@@ -34,9 +34,12 @@ def run():
 
     with open(os.path.join(os.getcwd(), 'classify', 'template.html'), 'r') as f:
         template = Template(f.read())
-    output = template.render(object=structure)
+    output = template.render(klass=structure)
 
-    with open(os.path.join(os.getcwd(), 'classify.html'), 'w') as f:
+    path = os.path.join(os.getcwd(), 'output')
+    if not os.path.exists(path):
+        os.makedirs(path)
+    with open(os.path.join(path, 'classify.html'), 'w') as f:
         f.write(output)
 
     if args.serve:
