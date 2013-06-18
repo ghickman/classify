@@ -5,7 +5,7 @@ import SocketServer
 import sys
 import webbrowser
 
-from jinja2 import Template
+from jinja2 import Environment, PackageLoader
 
 from library import build
 
@@ -32,10 +32,8 @@ def run():
         sys.stderr.write('Could not import: {0}\n'.format(sys.argv[1]))
         sys.exit(1)
 
-    template_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'template.html')
-    with open(template_file, 'r') as f:
-        template = Template(f.read())
-    output = template.render(klass=structure)
+    env = Environment(loader=PackageLoader('classify', ''))
+    output = env.get_template('template.html').render(klass=structure)
 
     path = os.path.join(os.getcwd(), 'output')
     if not os.path.exists(path):
