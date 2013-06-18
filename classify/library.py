@@ -82,7 +82,7 @@ def sort_structures(klass):
 def build(thing):
     """Build a dictionary mapping of a class."""
     if 'django' in thing:
-        os.environ['DJANGO_SETTINGS_MODULE'] = 'classy.contrib.django.settings'
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'classify.contrib.django.settings'
 
     klass = {
         'attributes': [],
