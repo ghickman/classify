@@ -42,7 +42,7 @@
                         <tr>
                             <td>
                                 <code class="attribute{%if attribute.overridden %} overridden{% endif %}">
-                                    {{ attribute.name }} = {{ attribute.default }}
+                                    {{ attribute.name }} = {{ attribute.default|e }}
                                 </code>
                             </td>
                             <td>{{ attribute.defined }}</td>

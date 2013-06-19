@@ -4,6 +4,7 @@ import inspect
 import operator
 import os
 import pydoc
+import sys
 
 
 def classify(klass, obj, name=None, mod=None, *ignored):
@@ -83,6 +84,8 @@ def build(thing):
     """Build a dictionary mapping of a class."""
     if 'django' in thing:
         os.environ['DJANGO_SETTINGS_MODULE'] = 'classify.contrib.django.settings'
+
+    sys.path.insert(0, '')
 
     klass = {
         'attributes': [],
