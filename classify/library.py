@@ -31,7 +31,7 @@ def classify(klass, obj, name=None, mod=None, *ignored):
         attrs = get_attrs(cls)
 
         ## ATTRIBUTES
-        for a in build_attributes(filter(lambda t: t[1] == 'data', attrs), obj):
+        for a in build_attributes(filter(lambda t: t[1] == 'data', attrs), obj, klass['parents']):
             klass['attributes'].append(a)
 
         ## METHODS
@@ -45,13 +45,14 @@ def classify(klass, obj, name=None, mod=None, *ignored):
 
     return klass
 
-def build_attributes(attributes, obj):
+def build_attributes(attributes, obj, parents):
     """Build the Attribute list for the given object."""
     for attr in attributes:
         yield {
             'name': attr[0],
             'default': getattr(obj, attr[0]),
             'defined': attr[2].__name__,
+            'order': parents.index(attr[2].__name__),
         }
 
 def build_methods(methods, parents):
