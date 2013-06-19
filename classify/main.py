@@ -1,4 +1,5 @@
 import argparse
+import inspect
 import os
 import SimpleHTTPServer
 import SocketServer
@@ -31,6 +32,23 @@ def run():
     except ImportError:
         sys.stderr.write('Could not import: {0}\n'.format(sys.argv[1]))
         sys.exit(1)
+
+    for i, attr in enumerate(structure['attributes']):
+        a = attr['default']
+
+        if inspect.isclass(a):
+            structure['attributes'][i]['default'] = a.__name__
+            continue
+
+        if isinstance(a, list):
+            try:
+                s = '[{0}]'.format(', '.join([c.__name__ for c in a]))
+                structure['attributes'][i]['default'] = s
+            except AttributeError:
+                pass
+            else:
+                continue
+
 
     env = Environment(loader=PackageLoader('classify', ''))
     output = env.get_template('template.html').render(klass=structure)
