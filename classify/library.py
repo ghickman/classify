@@ -94,7 +94,7 @@ def build_attributes(attributes, obj):
     for attr in attributes:
         yield {
             'name': attr[0],
-            'object': getattr(obj, attr[0]),
+            'object': getattr(attr[2], attr[0]),
             'defining_class': attr[2],
         }
 
