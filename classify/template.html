@@ -38,15 +38,17 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for attribute in klass.attributes %}
+                        {% for name, attributes in klass.attributes.items() %}
+                        {% for attribute in attributes %}
                         <tr>
                             <td>
-                                <code class="attribute{%if attribute.overridden %} overridden{% endif %}">
-                                    {{ attribute.name }} = {{ attribute.default|e }}
+                                <code class="attribute{% if not loop.last %} overridden{% endif %}"{% if not loop.last %} style="text-decoration:line-through"{% endif %}>
+                                    {{ name }} = {{ attribute.object|e }}
                                 </code>
                             </td>
-                            <td>{{ attribute.defined }}</td>
+                            <td>{{ attribute.defining_class }}</td>
                         </tr>
+                        {% endfor %}
                         {% endfor %}
                     </tbody>
                 </table>
@@ -54,13 +56,15 @@
 
             {% if klass.methods %}
                 <h2>Methods</h2>
-                {% for method in klass.methods %}
-                <div class="method">
-                    <h3>{{ method.name }}{{ method.arguments }} [{{ method.defined }}]</h3>
-                    <p>{{ method.docstring|e }}</p>
-                    <p>Found on lines {{ method.lines.start }} to {{ method.lines.start+method.lines.total }} of {{ method.file }}</p>
-                    <pre>{{ method.code }}</pre>
-                </div>
+                {% for name, declarations in klass.methods.items() %}
+                    {% for declaration in declarations %}
+                    <div class="method">
+                        <h3>{{ name }}{{ declaration.arguments }} [{{ declaration.defining_class.__name__ }}]</h3>
+                        <p>{{ declaration.docstring|e }}</p>
+                        {# <p>Found on lines {{ method.lines.start }} to {{ method.lines.start+method.lines.total }} of {{ method.file }}</p> #}
+                        <pre>{{ declaration.code }}</pre>
+                    </div>
+                    {% endfor %}
                 {% endfor %}
             {% endif %}
         </article>

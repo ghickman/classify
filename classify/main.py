@@ -1,5 +1,5 @@
 import argparse
-import inspect
+import collections
 import os
 import SimpleHTTPServer
 import SocketServer
@@ -33,21 +33,22 @@ def run():
         sys.stderr.write('Could not import: {0}\n'.format(sys.argv[1]))
         sys.exit(1)
 
-    for i, attr in enumerate(structure['attributes']):
-        a = attr['default']
+    for name, lst in structure['attributes'].items():
+        for i, definition in enumerate(lst):
+            a = definition['defining_class']
+            structure['attributes'][name][i]['defining_class'] = a.__name__
 
-        if inspect.isclass(a):
-            structure['attributes'][i]['default'] = a.__name__
-            continue
+            if isinstance(definition['object'], list):
+                try:
+                    s = '[{0}]'.format(', '.join([c.__name__ for c in definition['object']]))
+                except AttributeError:
+                    pass
+                else:
+                    structure['attributes'][name][i]['default'] = s
+                    continue
 
-        if isinstance(a, list):
-            try:
-                s = '[{0}]'.format(', '.join([c.__name__ for c in a]))
-                structure['attributes'][i]['default'] = s
-            except AttributeError:
-                pass
-            else:
-                continue
+    sorted_attributes = sorted(structure['attributes'].items(), key=lambda t: t[0])
+    structure['attributes'] = collections.OrderedDict(sorted_attributes)
 
 
     env = Environment(loader=PackageLoader('classify', ''))
