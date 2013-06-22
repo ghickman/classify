@@ -52,8 +52,7 @@ def classify(klass, obj, name=None, mod=None, *ignored):
     if not inspect.isclass(obj):
         raise Exception
 
-    mro = collections.deque(inspect.getmro(obj))
-    mro.reverse()
+    mro = list(reversed(inspect.getmro(obj)))
 
     klass.update({
         'name': obj.__name__,
