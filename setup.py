@@ -3,7 +3,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='classify',
-    version='0.2',
+    version='0.3',
     description='Generate concrete Class documentation for Python Classes.',
     long_description=open('README.rst').read(),
     author='George Hickman',
