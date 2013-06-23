@@ -1,6 +1,7 @@
 import argparse
 import collections
 import os
+import pydoc
 import SimpleHTTPServer
 import SocketServer
 import sys
@@ -8,16 +9,25 @@ import webbrowser
 
 from jinja2 import Environment, PackageLoader
 
-from library import build
+from .library import build
+from .formatters import html, paged
 
 
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('klass', metavar='KLASS')
-parser.add_argument('-s', '--serve', action='store_true', dest='serve')
+parser.add_argument('--html', action='store_true', dest='html')
 parser.add_argument('--django', action='store_true', dest='django')
 parser.add_argument('--django-settings', action='store', dest='django_settings')
 parser.add_argument('-p', '--port', action='store', dest='port', type=int, default=8000)
+parser.add_argument('-s', '--serve', action='store_true', dest='serve')
 args = parser.parse_args()
+
+
+def output_path():
+    path = os.path.join(os.getcwd(), 'output')
+    if not os.path.exists(path):
+        os.makedirs(path)
+    return os.path.join(path, 'classify.html')
 
 
 def serve(port):
@@ -58,18 +68,23 @@ def run():
     sorted_attributes = sorted(structure['attributes'].items(), key=lambda t: t[0])
     structure['attributes'] = collections.OrderedDict(sorted_attributes)
 
+    sorted_methods = sorted(structure['methods'].items(), key=lambda t: t[0])
+    structure['methods'] = collections.OrderedDict(sorted_methods)
 
-    env = Environment(loader=PackageLoader('classify', ''))
-    output = env.get_template('template.html').render(klass=structure)
+    env = Environment(loader=PackageLoader('classify', 'templates'))
+    if args.html:
+        template = env.get_template('web.html')
+        output = html(structure, template, serve=args.serve, port=args.port)
 
-    path = os.path.join(os.getcwd(), 'output')
-    if not os.path.exists(path):
-        os.makedirs(path)
-    with open(os.path.join(path, 'classify.html'), 'w') as f:
-        f.write(output)
+        with open(output_path(), 'w') as f:
+            f.write(output)
 
-    if args.serve:
-        serve(args.port)
+        if args.serve:
+            serve(args.port)
+    else:
+        pydoc.pager(paged(structure))
+
+    sys.exit(0)
 
 
 if __name__ == '__main__':
