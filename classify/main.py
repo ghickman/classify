@@ -14,6 +14,8 @@ from library import build
 parser = argparse.ArgumentParser(description='Process some integers.')
 parser.add_argument('klass', metavar='KLASS')
 parser.add_argument('-s', '--serve', action='store_true', dest='serve')
+parser.add_argument('--django', action='store_true', dest='django')
+parser.add_argument('--django-settings', action='store', dest='django_settings')
 parser.add_argument('-p', '--port', action='store', dest='port', type=int, default=8000)
 args = parser.parse_args()
 
@@ -27,6 +29,12 @@ def serve(port):
 
 
 def run():
+    if args.django:
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'classify.contrib.django.settings'
+
+    if args.django_settings:
+        os.environ['DJANGO_SETTINGS_MODULE'] = args.django_settings
+
     try:
         structure = build(args.klass)
     except ImportError:
