@@ -57,7 +57,8 @@ def classify(klass, obj, name=None, mod=None, *ignored):
     klass.update({
         'name': obj.__name__,
         'docstring': pydoc.getdoc(obj),
-        'parents': [k.__name__ for k in mro]
+        'ancestors': [k.__name__ for k in mro],
+        'parents': inspect.getclasstree([obj])[-1][0][1]
     })
 
     def get_attrs(obj):
@@ -128,6 +129,7 @@ def build(thing):
         'attributes': DefaultOrderedDict(list),
         'methods': DefaultOrderedDict(list),
         'properties': [],
+        'ancestors': [],
         'parents': [],
     }
 
