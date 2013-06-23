@@ -1,2 +1,2 @@
 include README.rst
-include classify/template.html
+recursive-include classify/templates/ *.html
