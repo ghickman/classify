@@ -1,6 +1,7 @@
 import argparse
 import collections
 import os
+import pkg_resources
 import pydoc
 import SimpleHTTPServer
 import SocketServer
@@ -13,7 +14,10 @@ from .library import build
 from .formatters import html, paged
 
 
-parser = argparse.ArgumentParser(description='Process some integers.')
+version = pkg_resources.get_distribution('classify').version
+
+
+parser = argparse.ArgumentParser(version='Classify {0}'.format(version))
 parser.add_argument('klass', metavar='KLASS')
 parser.add_argument('--html', action='store_true', dest='html')
 parser.add_argument('--django', action='store_true', dest='django')
