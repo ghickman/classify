@@ -21,11 +21,13 @@ Usage
 
 Why?
 ----
-[CCBV](http://ccbv.co.uk) has long been part of my everyday toolkit for
+CCBV_ has long been part of my everyday toolkit for
 working with Django's class-based views, it's a fantastic resource for quick
 reference. But it only covers Django's CBVs.
 
 Classify aims to be CCBV for all your Python classes.
+
+.. _CCBV: http://ccbv.co.uk
 
 
 An Example
