@@ -18,6 +18,15 @@ Usage
 
     $ classify <python.path.to.Class>
 
+This outputs by default to your shell's pager. However you can also generate an
+HTML document to get CCBV_ style pages and even serve that document.
+
+
+.. code-block:: bash
+
+    $ classify <python.path.to.Class> --html [--serve|[--port]]
+
+
 
 Why?
 ----
