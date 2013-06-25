@@ -24,7 +24,7 @@ HTML document to get CCBV_ style pages and even serve that document.
 
 .. code-block:: bash
 
-    $ classify <python.path.to.Class> --html [--serve|[--port]]
+    $ classify <python.path.to.Class> --html [--serve [--port]]
 
 
 
