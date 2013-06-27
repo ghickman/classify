@@ -38,7 +38,8 @@ def serve(port):
     Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
     httpd = SocketServer.TCPServer(('', port), Handler)
     print('Serving on port: {0}'.format(port))
-    webbrowser.open_new_tab('http://localhost:{0}/classify.html'.format(port))
+    webbrowser.open_new_tab('http://localhost:{0}/'
+                            'output/classify.html'.format(port))
     httpd.serve_forever()
 
 
