@@ -22,13 +22,15 @@ parser.add_argument('klass', metavar='KLASS')
 parser.add_argument('--html', action='store_true', dest='html')
 parser.add_argument('--django', action='store_true', dest='django')
 parser.add_argument('--django-settings', action='store', dest='django_settings')
+parser.add_argument('--output', '-o', action='store', dest='output',
+                    default='output', help='Relative path for output files to be saved')
 parser.add_argument('-p', '--port', action='store', dest='port', type=int, default=8000)
 parser.add_argument('-s', '--serve', action='store_true', dest='serve')
 args = parser.parse_args()
 
 
 def output_path():
-    path = os.path.join(os.getcwd(), 'output')
+    path = os.path.join(os.getcwd(), args.output)
     if not os.path.exists(path):
         os.makedirs(path)
     return os.path.join(path, 'classify.html')
