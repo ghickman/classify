@@ -28,8 +28,6 @@ By default any generated HTML documents will be saved to ``/path/to/current/dir/
     $ classify <python.path.to.Class> --html [--output [--serve [--port]]]
 
 
-
-
 Why?
 ----
 CCBV_ has long been part of my everyday toolkit for
