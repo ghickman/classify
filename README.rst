@@ -21,7 +21,7 @@ Usage
 This outputs by default to your shell's pager. However you can also generate an
 HTML document to get CCBV_ style pages and even serve that document.
 
-By default HTML documents are saved to``/path/to/current/dir/output``.
+By default HTML documents are saved to ``/path/to/current/dir/output``.
 To change this specify a relative location with the ``--output`` option.
 
 .. code-block:: bash
