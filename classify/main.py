@@ -54,7 +54,7 @@ def run():
 
     try:
         structure = build(args.klass)
-    except ImportError:
+    except (ImportError, pydoc.ErrorDuringImport):
         sys.stderr.write('Could not import: {0}\n'.format(sys.argv[1]))
         sys.exit(1)
 
