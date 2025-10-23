@@ -1,0 +1,39 @@
+[build-system]
+requires = ["uv_build>=0.9.5,<0.10.0"]
+build-backend = "uv_build"
+
+[project]
+name = "classify"
+version = "0.6.0"
+description = "Generate concrete Class documentation for Python Classes."
+readme = "README.rst"
+requires-python = ">=3.13"
+authors = [
+  {name = "George Hickman", email="george@ghickman.co.uk"}
+]
+license = "MIT"
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: MacOS :: MacOS X",
+  "Operating System :: POSIX",
+  "Programming Language :: Python :: 2.6",
+  "Programming Language :: Python :: 2.7",
+  "Topic :: Documentation",
+]
+dependencies = [
+  "jinja2>=2.7",
+]
+
+[project.scripts]
+classify = "classify.main:run"
+
+[project.urls]
+Repository = "https://github.com/ghickman/classify/"
+Changelog = "https://github.com/ghickman/classify/blob/main/CHANGELOG.rst"
+
+[dependency-groups]
+dev = [
+    "black>=25.9.0,<26",
+]

@@ -1,9 +1,12 @@
 black *args="":
-    uv run black --check classify {{ args }}
+    uv run black --check src {{ args }}
 
 fix:
-    uv run black classify
+    uv run black src
 
 release:
-    uv run setup.py register sdist upload
-    uv run setup.py register bdist_wheel upload
+    uv build
+    uv publish
+
+run *args="":
+    classify {{ args }}

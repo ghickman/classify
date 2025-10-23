@@ -99,6 +99,7 @@ def classify(klass, obj, name=None, mod=None, *ignored):
 
 def build_attributes(attributes, obj):
     """Build the Attribute list for the given object."""
+    print(obj)
     for attr in attributes:
         yield {
             "name": attr[0],
