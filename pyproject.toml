@@ -9,7 +9,7 @@ description = "Generate concrete Class documentation for Python Classes."
 readme = "README.rst"
 requires-python = ">=3.13"
 authors = [
-  {name = "George Hickman", email="george@ghickman.co.uk"}
+  {name = "George Hickman", email = "george@ghickman.co.uk"},
 ]
 license = "MIT"
 classifiers = [
@@ -35,5 +35,41 @@ Changelog = "https://github.com/ghickman/classify/blob/main/CHANGELOG.rst"
 
 [dependency-groups]
 dev = [
-    "black>=25.9.0,<26",
+  "black>=25.9.0,<26",
+  "ruff>=0.14.2",
+  "toml-sort>=0.24.3",
+]
+
+[tool.ruff]
+line-length = 88
+extend-exclude = [
+  "src/classify/contrib/django/",
+  "src/classify/templates",
+]
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+  "ANN",
+  "C90",
+  "COM",
+  "D",
+  "E501",
+  "ERA001",
+  "S",
+  "SIM108",
+  "T20",
+  "TID252",
+]
+
+[tool.ruff.lint.isort]
+lines-after-imports = 2
+
+[tool.tomlsort]
+spaces_before_inline_comment = 2
+trailing_comma_inline_array = true
+sort_first = [
+  "build-system",
+  "project",
 ]

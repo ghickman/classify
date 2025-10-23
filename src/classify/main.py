@@ -5,11 +5,12 @@ import pydoc
 import sys
 import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
+from pathlib import Path
 
 from jinja2 import Environment, PackageLoader
 
-from .library import build
 from .formatters import html, paged
+from .library import build
 
 
 parser = argparse.ArgumentParser()
@@ -31,16 +32,15 @@ args = parser.parse_args()
 
 
 def output_path():
-    path = os.path.join(os.getcwd(), args.output)
-    if not os.path.exists(path):
-        os.makedirs(path)
-    return os.path.join(path, "classify.html")
+    path = Path.cwd() / Path(args.output)
+    path.mkdir(exist_ok=True)
+    return path / "classify.html"
 
 
 def serve(port):
     httpd = HTTPServer(("", port), BaseHTTPRequestHandler)
-    print("Serving on port: {0}".format(port))
-    webbrowser.open_new_tab("http://localhost:{0}/" "output/classify.html".format(port))
+    print(f"Serving on port: {port}")
+    webbrowser.open_new_tab(f"http://localhost:{port}/output/classify.html")
     httpd.serve_forever()
 
 
@@ -54,7 +54,7 @@ def run():
     try:
         structure = build(args.klass)
     except (ImportError, pydoc.ErrorDuringImport):
-        sys.stderr.write("Could not import: {0}\n".format(sys.argv[1]))
+        sys.stderr.write(f"Could not import: {sys.argv[1]}\n")
         sys.exit(1)
 
     for name, lst in structure["attributes"].items():
@@ -64,9 +64,7 @@ def run():
 
             if isinstance(definition["object"], list):
                 try:
-                    s = "[{0}]".format(
-                        ", ".join([c.__name__ for c in definition["object"]])
-                    )
+                    s = f"[{', '.join([c.__name__ for c in definition['object']])}]"
                 except AttributeError:
                     pass
                 else:
@@ -82,10 +80,9 @@ def run():
     env = Environment(loader=PackageLoader("classify", "templates"))
     if args.html:
         template = env.get_template("web.html")
-        output = html(structure, template, serve=args.serve, port=args.port)
+        output = html(structure, template)
 
-        with open(output_path(), "w") as f:
-            f.write(output)
+        output_path().write_text(output)
 
         if args.serve:
             serve(args.port)

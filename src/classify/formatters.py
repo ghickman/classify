@@ -1,34 +1,35 @@
-def html(structure, template, serve, port):
+INDENT = " " * 4
+
+
+def html(structure, template):
     return template.render(klass=structure)
 
 
 def paged(structure):
-    INDENT = " " * 4
-
     def attributes(attributes):
         attrs = []
         for name, definitions in attributes.items():
             obj = definitions[-1]["object"]
-            attrs.append("{0}{1} = {2}\n".format(INDENT, name, obj))
+            attrs.append(f"{INDENT}{name} = {obj}\n")
         return "".join(attrs)
 
     def declaration(name, parents):
         parents = ", ".join([p.__name__ for p in parents])
-        return "class {0}({1}):".format(name, parents)
+        return f"class {name}({parents}):"
 
     def docstring(docstring):
-        quotes = '{0}"""\n'.format(INDENT)
+        quotes = f'{INDENT}"""\n'
         lines = docstring.split("\n")
-        block = "".join(["{0}{1}\n".format(INDENT, line) for line in lines])
-        return "{0}{1}{2}".format(quotes, block, quotes)
+        block = "".join([f"{INDENT}{line}\n" for line in lines])
+        return f"{quotes}{block}{quotes}"
 
     def methods(methods):
         content = ""
-        for name, definitions in methods.items():
+        for definitions in methods.values():
             for d in definitions:
                 lines = d["code"].split("\n")[:-1]
                 for line in lines:
-                    content += "{0}{1}\n".format(INDENT, line[4:])
+                    content += f"{INDENT}{line[4:]}\n"
                 content += "\n"
         return content
 

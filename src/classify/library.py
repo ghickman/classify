@@ -9,9 +9,11 @@ import sys
 class DefaultOrderedDict(collections.OrderedDict):
     def __init__(self, default_factory=None, *a, **kw):
         if default_factory is not None and not isinstance(
-            default_factory, collections.abc.Callable
+            default_factory,
+            collections.abc.Callable,
         ):
-            raise TypeError("first argument must be callable")
+            msg = "first argument must be callable"
+            raise TypeError(msg)
         collections.OrderedDict.__init__(self, *a, **kw)
         self.default_factory = default_factory
 
@@ -29,7 +31,7 @@ class DefaultOrderedDict(collections.OrderedDict):
 
     def __reduce__(self):
         if self.default_factory is None:
-            args = tuple()
+            args = ()
         else:
             args = (self.default_factory,)
         return type(self), args, None, None, self.items()
@@ -41,19 +43,23 @@ class DefaultOrderedDict(collections.OrderedDict):
         return type(self)(self.default_factory, self)
 
     def __deepcopy__(self, memo):
-        import copy
+        import copy  # noqa: PLC0415
 
         return type(self)(self.default_factory, copy.deepcopy(self.items()))
 
     def __repr__(self):
-        return "OrderedDefaultDict({0}, {1})".format(
-            self.default_factory, collections.OrderedDict.__repr__(self)
-        )
+        return f"OrderedDefaultDict({self.default_factory}, {collections.OrderedDict.__repr__(self)})"
 
 
-def classify(klass, obj, name=None, mod=None, *ignored):
+def _is_method(t):
+    return t[1] == "method" or t[1] == "class method" or t[1] == "static method"
+
+
+def classify(klass, obj, name=None):
     if not inspect.isclass(obj):
-        raise Exception
+        prefix = name if name else "Input"
+        msg = f"{prefix} doesn't look like a class, please specify the path to a class"
+        raise TypeError(msg)
 
     mro = list(reversed(inspect.getmro(obj)))
 
@@ -63,7 +69,7 @@ def classify(klass, obj, name=None, mod=None, *ignored):
             "docstring": pydoc.getdoc(obj),
             "ancestors": [k.__name__ for k in mro],
             "parents": inspect.getclasstree([obj])[-1][0][1],
-        }
+        },
     )
 
     def get_attrs(obj):
@@ -80,19 +86,15 @@ def classify(klass, obj, name=None, mod=None, *ignored):
         attrs = list(get_attrs(cls))
 
         ## ATTRIBUTES
-        for attribute in build_attributes(filter(lambda t: t[1] == "data", attrs), obj):
+        attributes = build_attributes(filter(lambda t: t[1] == "data", attrs), obj)
+        for attribute in attributes:
             name = attribute.pop("name")
             klass["attributes"][name].append(attribute)
 
         ## METHODS
-        is_method = lambda t: (
-            t[1] == "method" or t[1] == "class method" or t[1] == "static method"
-        )
-        for method in build_methods(filter(is_method, attrs)):
+        for method in build_methods(filter(_is_method, attrs)):
             name = method.pop("name")
             klass["methods"][name].append(method)
-
-        # descriptors = filter(lambda t: t[1] == 'data descriptor', attrs)
 
     return klass
 
