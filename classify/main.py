@@ -1,12 +1,10 @@
 import argparse
 import collections
 import os
-import pkg_resources
 import pydoc
-import SimpleHTTPServer
-import SocketServer
 import sys
 import webbrowser
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
 from jinja2 import Environment, PackageLoader
 
@@ -14,10 +12,7 @@ from .library import build
 from .formatters import html, paged
 
 
-version = pkg_resources.get_distribution('classify').version
-
-
-parser = argparse.ArgumentParser(version='Classify {0}'.format(version))
+parser = argparse.ArgumentParser()
 parser.add_argument('klass', metavar='KLASS')
 parser.add_argument('--html', action='store_true', dest='html')
 parser.add_argument('--django', action='store_true', dest='django')
@@ -37,8 +32,7 @@ def output_path():
 
 
 def serve(port):
-    Handler = SimpleHTTPServer.SimpleHTTPRequestHandler
-    httpd = SocketServer.TCPServer(('', port), Handler)
+    httpd = HTTPServer(('', port), BaseHTTPRequestHandler)
     print('Serving on port: {0}'.format(port))
     webbrowser.open_new_tab('http://localhost:{0}/'
                             'output/classify.html'.format(port))

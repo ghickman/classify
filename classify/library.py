@@ -1,4 +1,4 @@
-import __builtin__
+import builtins
 import collections
 import inspect
 import os
@@ -9,7 +9,7 @@ import sys
 class DefaultOrderedDict(collections.OrderedDict):
     def __init__(self, default_factory=None, *a, **kw):
         if (default_factory is not None and
-            not isinstance(default_factory, collections.Callable)):
+            not isinstance(default_factory, collections.abc.Callable)):
             raise TypeError('first argument must be callable')
         collections.OrderedDict.__init__(self, *a, **kw)
         self.default_factory = default_factory
@@ -67,10 +67,10 @@ def classify(klass, obj, name=None, mod=None, *ignored):
         return filter(lambda data: data[2] == obj, all_attrs)
 
     for cls in mro:
-        if cls is __builtin__.object:
+        if cls is builtins.object:
             continue
 
-        attrs = get_attrs(cls)
+        attrs = list(get_attrs(cls))
 
         ## ATTRIBUTES
         for attribute in build_attributes(filter(lambda t: t[1] == 'data', attrs), obj):
@@ -102,8 +102,7 @@ def build_methods(methods):
     for method in methods:
         func = getattr(method[2], method[0])
         # Get the method arguments
-        args, varargs, keywords, defaults = inspect.getargspec(func)
-        arguments = inspect.formatargspec(args, varargs=varargs, varkw=keywords, defaults=defaults)
+        arguments = inspect.getfullargspec(func)
 
         # Get source line details
         lines, start_line = inspect.getsourcelines(func)
@@ -134,8 +133,4 @@ def build(thing):
     }
 
     obj, name = pydoc.resolve(thing, forceload=0)
-    if type(obj) is pydoc._OLD_INSTANCE_TYPE:
-        # If the passed obj is an instance of an old-style class,
-        # dispatch its available methods instead of its value.
-        obj = obj.__class__
     return classify(klass, obj, name)

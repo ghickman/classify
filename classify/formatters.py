@@ -1,6 +1,3 @@
-import string
-
-
 def html(structure, template, serve, port):
     return template.render(klass=structure)
 
@@ -13,16 +10,16 @@ def paged(structure):
         for name, definitions in attributes.items():
             obj = definitions[-1]['object']
             attrs.append('{0}{1} = {2}\n'.format(INDENT, name, obj))
-        return string.join(attrs, '')
+        return ''.join(attrs)
 
     def declaration(name, parents):
-        parents = string.join([p.__name__ for p in parents], ', ')
+        parents = ', '.join([p.__name__ for p in parents])
         return 'class {0}({1}):'.format(name, parents)
 
     def docstring(docstring):
         quotes = '{0}"""\n'.format(INDENT)
         lines = docstring.split('\n')
-        block = string.join(['{0}{1}\n'.format(INDENT, line) for line in lines], '')
+        block = ''.join(['{0}{1}\n'.format(INDENT, line) for line in lines])
         return '{0}{1}{2}'.format(quotes, block, quotes)
 
     def methods(methods):
@@ -36,7 +33,7 @@ def paged(structure):
         return content
 
     def parents(parents):
-        return string.join([p.__name__ for p in parents], ', ')
+        return ', '.join([p.__name__ for p in parents])
 
 
     content = declaration(structure['name'], structure['parents'])
