@@ -3,44 +3,43 @@ def html(structure, template, serve, port):
 
 
 def paged(structure):
-    INDENT = ' '*4
+    INDENT = " " * 4
 
     def attributes(attributes):
         attrs = []
         for name, definitions in attributes.items():
-            obj = definitions[-1]['object']
-            attrs.append('{0}{1} = {2}\n'.format(INDENT, name, obj))
-        return ''.join(attrs)
+            obj = definitions[-1]["object"]
+            attrs.append("{0}{1} = {2}\n".format(INDENT, name, obj))
+        return "".join(attrs)
 
     def declaration(name, parents):
-        parents = ', '.join([p.__name__ for p in parents])
-        return 'class {0}({1}):'.format(name, parents)
+        parents = ", ".join([p.__name__ for p in parents])
+        return "class {0}({1}):".format(name, parents)
 
     def docstring(docstring):
         quotes = '{0}"""\n'.format(INDENT)
-        lines = docstring.split('\n')
-        block = ''.join(['{0}{1}\n'.format(INDENT, line) for line in lines])
-        return '{0}{1}{2}'.format(quotes, block, quotes)
+        lines = docstring.split("\n")
+        block = "".join(["{0}{1}\n".format(INDENT, line) for line in lines])
+        return "{0}{1}{2}".format(quotes, block, quotes)
 
     def methods(methods):
-        content = ''
+        content = ""
         for name, definitions in methods.items():
             for d in definitions:
-                lines = d['code'].split('\n')[:-1]
+                lines = d["code"].split("\n")[:-1]
                 for line in lines:
-                    content += '{0}{1}\n'.format(INDENT, line[4:])
-                content += '\n'
+                    content += "{0}{1}\n".format(INDENT, line[4:])
+                content += "\n"
         return content
 
     def parents(parents):
-        return ', '.join([p.__name__ for p in parents])
+        return ", ".join([p.__name__ for p in parents])
 
-
-    content = declaration(structure['name'], structure['parents'])
-    content += '\n'
+    content = declaration(structure["name"], structure["parents"])
+    content += "\n"
     if docstring:
-        content += docstring(structure['docstring'])
-    content += attributes(structure['attributes'])
-    content += '\n'
-    content += methods(structure['methods'])
+        content += docstring(structure["docstring"])
+    content += attributes(structure["attributes"])
+    content += "\n"
+    content += methods(structure["methods"])
     return content
