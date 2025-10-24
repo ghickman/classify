@@ -145,5 +145,5 @@ def build(thing):
         "parents": [],
     }
 
-    obj, name = pydoc.resolve(thing, forceload=0)
+    obj, name = pydoc.resolve(thing)
     return classify(klass, obj, name)

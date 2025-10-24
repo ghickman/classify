@@ -38,6 +38,7 @@ dev = [
   "black>=25.9.0,<26",
   "ruff>=0.14.2",
   "toml-sort>=0.24.3",
+  "ty>=0.0.1a24",
 ]
 
 [tool.ruff]

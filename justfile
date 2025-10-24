@@ -7,7 +7,10 @@ ruff *args="":
 toml-sort *args:
     uv run toml-sort {{ args }} pyproject.toml
 
-check: black ruff
+type-check *args:
+    uv run ty check
+
+check: black ruff type-check
     {{ just_executable() }} toml-sort --check
 
 fix:

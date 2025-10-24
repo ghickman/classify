@@ -31,20 +31,20 @@ parser.add_argument("-s", "--serve", action="store_true", dest="serve")
 args = parser.parse_args()
 
 
-def output_path():
+def output_path() -> Path:
     path = Path.cwd() / Path(args.output)
     path.mkdir(exist_ok=True)
     return path / "classify.html"
 
 
-def serve(port):
+def serve(port: int) -> None:
     httpd = HTTPServer(("", port), BaseHTTPRequestHandler)
     print(f"Serving on port: {port}")
     webbrowser.open_new_tab(f"http://localhost:{port}/output/classify.html")
     httpd.serve_forever()
 
 
-def run():
+def run() -> None:
     if args.django:
         os.environ["DJANGO_SETTINGS_MODULE"] = "classify.contrib.django.settings"
 
