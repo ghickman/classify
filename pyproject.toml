@@ -37,6 +37,7 @@ Changelog = "https://github.com/ghickman/classify/blob/main/CHANGELOG.rst"
 [dependency-groups]
 dev = [
   "black>=25.9.0,<26",
+  "ipdb>=0.13.13",
   "ruff>=0.14.2",
   "toml-sort>=0.24.3",
   "ty>=0.0.1a24",
