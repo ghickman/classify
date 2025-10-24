@@ -23,6 +23,7 @@ classifiers = [
   "Topic :: Documentation",
 ]
 dependencies = [
+  "click>=8.3.0",
   "jinja2>=2.7",
 ]
 
@@ -58,6 +59,7 @@ ignore = [
   "D",
   "E501",
   "ERA001",
+  "PLR0913",
   "S",
   "SIM108",
   "T20",

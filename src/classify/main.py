@@ -1,4 +1,3 @@
-import argparse
 import collections
 import os
 import pydoc
@@ -7,52 +6,52 @@ import webbrowser
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 
+import click
 from jinja2 import Environment, PackageLoader
 
 from .formatters import html, paged
 from .library import build
 
 
-parser = argparse.ArgumentParser()
-parser.add_argument("klass", metavar="KLASS")
-parser.add_argument("--html", action="store_true", dest="html")
-parser.add_argument("--django", action="store_true", dest="django")
-parser.add_argument("--django-settings", action="store", dest="django_settings")
-parser.add_argument(
-    "--output",
-    "-o",
-    action="store",
-    dest="output",
-    default="output",
-    help="Relative path for output files to be saved",
-)
-parser.add_argument("-p", "--port", action="store", dest="port", type=int, default=8000)
-parser.add_argument("-s", "--serve", action="store_true", dest="serve")
-args = parser.parse_args()
-
-
-def output_path() -> Path:
-    path = Path.cwd() / Path(args.output)
-    path.mkdir(exist_ok=True)
-    return path / "classify.html"
-
-
-def serve(port: int) -> None:
+def serve_output(port: int) -> None:
     httpd = HTTPServer(("", port), BaseHTTPRequestHandler)
     print(f"Serving on port: {port}")
     webbrowser.open_new_tab(f"http://localhost:{port}/output/classify.html")
     httpd.serve_forever()
 
 
-def run() -> None:
-    if args.django:
+@click.command()
+@click.argument("klass")
+@click.option("--django", "use_django", is_flag=True)
+@click.option("--django-settings")
+@click.option("--html", "render_to_html", is_flag=True)
+@click.option(
+    "-o",
+    "--output",
+    "output_path",
+    default="output",
+    type=click.Path(file_okay=False, path_type=Path),
+    help="Relative path for output files to be saved",
+)
+@click.option("-p", "--port", default=8000, type=click.INT)
+@click.option("-s", "--serve", is_flag=True)
+def run(
+    klass,
+    use_django,
+    django_settings,
+    render_to_html,
+    output_path,
+    port,
+    serve,
+) -> None:
+    if use_django:
         os.environ["DJANGO_SETTINGS_MODULE"] = "classify.contrib.django.settings"
 
-    if args.django_settings:
-        os.environ["DJANGO_SETTINGS_MODULE"] = args.django_settings
+    if django_settings:
+        os.environ["DJANGO_SETTINGS_MODULE"] = django_settings
 
     try:
-        structure = build(args.klass)
+        structure = build(klass)
     except (ImportError, pydoc.ErrorDuringImport):
         sys.stderr.write(f"Could not import: {sys.argv[1]}\n")
         sys.exit(1)
@@ -78,14 +77,15 @@ def run() -> None:
     structure["methods"] = collections.OrderedDict(sorted_methods)
 
     env = Environment(loader=PackageLoader("classify", "templates"))
-    if args.html:
+    if render_to_html:
         template = env.get_template("web.html")
         output = html(structure, template)
 
-        output_path().write_text(output)
+        output_path.mkdir(exist_ok=True)
+        (output_path / "classify.html").write_text(output)
 
-        if args.serve:
-            serve(args.port)
+        if serve:
+            serve_output(port)
     else:
         pydoc.pager(paged(structure))
 

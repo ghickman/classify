@@ -28,6 +28,7 @@ name = "classify"
 version = "0.6.0"
 source = { editable = "." }
 dependencies = [
+    { name = "click" },
     { name = "jinja2" },
 ]
 
@@ -40,7 +41,10 @@ dev = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "jinja2", specifier = ">=2.7" }]
+requires-dist = [
+    { name = "click", specifier = ">=8.3.0" },
+    { name = "jinja2", specifier = ">=2.7" },
+]
 
 [package.metadata.requires-dev]
 dev = [
