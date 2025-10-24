@@ -1,16 +1,14 @@
-INDENT = " " * 4
+import pydoc
 
 
-def html(structure, template):
-    return template.render(klass=structure)
+def to_pager(structure) -> None:
+    indent = " " * 4
 
-
-def paged(structure):
     def attributes(attributes):
         attrs = []
         for name, definitions in attributes.items():
             obj = definitions[-1]["object"]
-            attrs.append(f"{INDENT}{name} = {obj}\n")
+            attrs.append(f"{indent}{name} = {obj}\n")
         return "".join(attrs)
 
     def declaration(name, parents):
@@ -18,9 +16,9 @@ def paged(structure):
         return f"class {name}({parents}):"
 
     def docstring(docstring):
-        quotes = f'{INDENT}"""\n'
+        quotes = f'{indent}"""\n'
         lines = docstring.split("\n")
-        block = "".join([f"{INDENT}{line}\n" for line in lines])
+        block = "".join([f"{indent}{line}\n" for line in lines])
         return f"{quotes}{block}{quotes}"
 
     def methods(methods):
@@ -29,7 +27,7 @@ def paged(structure):
             for d in definitions:
                 lines = d["code"].split("\n")[:-1]
                 for line in lines:
-                    content += f"{INDENT}{line[4:]}\n"
+                    content += f"{indent}{line[4:]}\n"
                 content += "\n"
         return content
 
@@ -43,4 +41,5 @@ def paged(structure):
     content += attributes(structure["attributes"])
     content += "\n"
     content += methods(structure["methods"])
-    return content
+
+    pydoc.pager(content)
