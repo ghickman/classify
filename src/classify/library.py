@@ -50,14 +50,25 @@ def _is_method(t):
 
 
 def get_members(obj):
-    members = filter(
-        lambda data: pydoc.visiblename(data[0], obj=obj),
-        pydoc.classify_class_attrs(obj),
-    )
-    return filter(lambda data: data[2] == obj, members)
+    """
+    Get members from the given object
+
+    classify_class_attrs returns a tuple of:
+     - name
+     - kind
+     - class
+     - object
+    """
+    members = pydoc.classify_class_attrs(obj)
+    # filter down to non-private items and those defined on the given object
+    return [
+        member
+        for member in members
+        if pydoc.visiblename(member[0], obj=obj) and member[2] == obj
+    ]
 
 
-def classify(obj, name=None) -> Class:
+def classify(obj: object, name=None) -> Class:
     if not inspect.isclass(obj):
         prefix = name if name else "Input"
         msg = f"{prefix} doesn't look like a class, please specify the path to a class"
@@ -76,8 +87,8 @@ def classify(obj, name=None) -> Class:
         members = list(get_members(cls))
 
         ## ATTRIBUTES
-        class_attrs = build_attributes(filter(lambda t: t[1] == "data", members), obj)
-        for attribute in class_attrs:
+        class_attrs = [m for m in members if m[1] == "data"]
+        for attribute in build_attributes(class_attrs, obj):
             attributes[attribute.name].append(attribute)
 
         ## METHODS
