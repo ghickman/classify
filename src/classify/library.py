@@ -49,20 +49,23 @@ def _is_method(t):
     return t[1] == "method" or t[1] == "class method" or t[1] == "static method"
 
 
+def get_members(obj):
+    members = filter(
+        lambda data: pydoc.visiblename(data[0], obj=obj),
+        pydoc.classify_class_attrs(obj),
+    )
+    return filter(lambda data: data[2] == obj, members)
+
+
 def classify(obj, name=None) -> Class:
     if not inspect.isclass(obj):
         prefix = name if name else "Input"
         msg = f"{prefix} doesn't look like a class, please specify the path to a class"
         raise TypeError(msg)
 
-    mro = list(reversed(inspect.getmro(obj)))
-
-    def get_attrs(obj):
-        all_attrs = filter(
-            lambda data: pydoc.visiblename(data[0], obj=obj),
-            pydoc.classify_class_attrs(obj),
-        )
-        return filter(lambda data: data[2] == obj, all_attrs)
+    # flatten the MRO of the given class and flip the order so it's the first
+    # non-object class first
+    mro = [cls for cls in reversed(inspect.getmro(obj)) if cls is not builtins.object]
 
     # build up dicts of attrs&methods, by name, because they can be defined on
     # more than one class in the MRO
@@ -70,18 +73,15 @@ def classify(obj, name=None) -> Class:
     methods = collections.defaultdict(list)
 
     for cls in mro:
-        if cls is builtins.object:
-            continue
-
-        attrs = list(get_attrs(cls))
+        members = list(get_members(cls))
 
         ## ATTRIBUTES
-        class_attrs = build_attributes(filter(lambda t: t[1] == "data", attrs), obj)
+        class_attrs = build_attributes(filter(lambda t: t[1] == "data", members), obj)
         for attribute in class_attrs:
             attributes[attribute.name].append(attribute)
 
         ## METHODS
-        for method in build_methods(filter(_is_method, attrs)):
+        for method in build_methods(filter(_is_method, members)):
             methods[method.name].append(method)
 
     return Class(
