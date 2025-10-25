@@ -45,10 +45,6 @@ class Method:
     file: str | None = None
 
 
-def _is_method(t):
-    return t[1] == "method" or t[1] == "class method" or t[1] == "static method"
-
-
 def get_members(obj):
     """
     Get members from the given object
@@ -92,7 +88,10 @@ def classify(obj: object, name=None) -> Class:
             attributes[attribute.name].append(attribute)
 
         ## METHODS
-        for method in build_methods(filter(_is_method, members)):
+        instance_methods = [
+            m for m in members if m[1] in ["method", "class method", "static method"]
+        ]
+        for method in build_methods(instance_methods):
             methods[method.name].append(method)
 
     return Class(
