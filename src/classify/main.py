@@ -1,4 +1,3 @@
-import collections
 import os
 import pydoc
 import sys
@@ -46,26 +45,6 @@ def run(
     except (ImportError, pydoc.ErrorDuringImport):
         sys.stderr.write(f"Could not import: {sys.argv[1]}\n")
         sys.exit(1)
-
-    for name, lst in structure["attributes"].items():
-        for i, definition in enumerate(lst):
-            a = definition["defining_class"]
-            structure["attributes"][name][i]["defining_class"] = a.__name__
-
-            if isinstance(definition["object"], list):
-                try:
-                    s = f"[{', '.join([c.__name__ for c in definition['object']])}]"
-                except AttributeError:
-                    pass
-                else:
-                    structure["attributes"][name][i]["default"] = s
-                    continue
-
-    sorted_attributes = sorted(structure["attributes"].items(), key=lambda t: t[0])
-    structure["attributes"] = collections.OrderedDict(sorted_attributes)
-
-    sorted_methods = sorted(structure["methods"].items(), key=lambda t: t[0])
-    structure["methods"] = collections.OrderedDict(sorted_methods)
 
     match renderer:
         case Renderer.CONSOLE:

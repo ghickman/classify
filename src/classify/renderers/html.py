@@ -7,6 +7,8 @@ from http.server import SimpleHTTPRequestHandler
 from pathlib import Path
 from types import GeneratorType
 
+from ..library import Class
+
 
 class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
@@ -39,7 +41,7 @@ def serve_output(port: int) -> None:
     httpd.serve_forever()
 
 
-def to_html(structure, output_path: Path | None, serve: bool, port: int) -> None:
+def to_html(structure: Class, output_path: Path | None, serve: bool, port: int) -> None:
     from jinja2 import Environment, PackageLoader  # noqa: PLC0415
 
     env = Environment(loader=PackageLoader("classify", "templates"))

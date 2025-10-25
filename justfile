@@ -24,3 +24,9 @@ release:
 
 run *args="":
     classify {{ args }}
+
+@console:
+    just run django.views.generic.FormView --console-theme dracula
+
+@html:
+    just run django.views.generic.FormView --renderer html --output output

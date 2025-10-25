@@ -4,28 +4,58 @@ import inspect
 import os
 import pydoc
 import sys
+from types import GeneratorType
+
+from attrs import Factory, frozen
+
+
+@frozen
+class Attribute:
+    name: str
+    object: str
+    defining_class: str
+    value: str
+
+
+@frozen
+class Class:
+    name: str
+    docstring: str
+    ancestors: list[str]
+    parents: list[str]
+    attributes: dict[str, list[Attribute]]
+    methods: dict[str, list["Method"]]
+    properties: list = Factory(list)
+
+
+@frozen
+class Line:
+    start: int
+    total: int
+
+
+@frozen
+class Method:
+    name: str
+    docstring: str
+    defining_class: str
+    arguments: inspect.FullArgSpec
+    code: str
+    lines: Line
+    file: str | None = None
 
 
 def _is_method(t):
     return t[1] == "method" or t[1] == "class method" or t[1] == "static method"
 
 
-def classify(klass, obj, name=None):
+def classify(obj, name=None) -> Class:
     if not inspect.isclass(obj):
         prefix = name if name else "Input"
         msg = f"{prefix} doesn't look like a class, please specify the path to a class"
         raise TypeError(msg)
 
     mro = list(reversed(inspect.getmro(obj)))
-
-    klass.update(
-        {
-            "name": obj.__name__,
-            "docstring": pydoc.getdoc(obj),
-            "ancestors": [k.__name__ for k in mro],
-            "parents": inspect.getclasstree([obj])[-1][0][1],
-        },
-    )
 
     def get_attrs(obj):
         all_attrs = filter(
@@ -34,6 +64,11 @@ def classify(klass, obj, name=None):
         )
         return filter(lambda data: data[2] == obj, all_attrs)
 
+    # build up dicts of attrs&methods, by name, because they can be defined on
+    # more than one class in the MRO
+    attributes = collections.defaultdict(list)
+    methods = collections.defaultdict(list)
+
     for cls in mro:
         if cls is builtins.object:
             continue
@@ -41,30 +76,38 @@ def classify(klass, obj, name=None):
         attrs = list(get_attrs(cls))
 
         ## ATTRIBUTES
-        attributes = build_attributes(filter(lambda t: t[1] == "data", attrs), obj)
-        for attribute in attributes:
-            name = attribute.pop("name")
-            klass["attributes"][name].append(attribute)
+        class_attrs = build_attributes(filter(lambda t: t[1] == "data", attrs), obj)
+        for attribute in class_attrs:
+            attributes[attribute.name].append(attribute)
 
         ## METHODS
         for method in build_methods(filter(_is_method, attrs)):
-            name = method.pop("name")
-            klass["methods"][name].append(method)
+            methods[method.name].append(method)
 
-    return klass
+    return Class(
+        name=obj.__name__,
+        docstring=pydoc.getdoc(obj),
+        ancestors=[k.__name__ for k in mro],
+        parents=inspect.getclasstree([obj])[-1][0][1],
+        attributes=dict(sorted(attributes.items())),
+        methods=dict(sorted(methods.items())),
+    )
 
 
-def build_attributes(attributes, obj):
+def build_attributes(attributes, obj) -> GeneratorType[Attribute]:
     """Build the Attribute list for the given object."""
     for attr in attributes:
-        yield {
-            "name": attr[0],
-            "object": getattr(attr[2], attr[0]),
-            "defining_class": attr[2],
-        }
+        obj = getattr(attr[2], attr[0])
+
+        yield Attribute(
+            name=attr[0],
+            object=obj,
+            defining_class=attr[2].__name__,
+            value=str(obj),
+        )
 
 
-def build_methods(methods):
+def build_methods(methods) -> GeneratorType[Method]:
     for method in methods:
         func = getattr(method[2], method[0])
         # Get the method arguments
@@ -73,31 +116,23 @@ def build_methods(methods):
         # Get source line details
         lines, start_line = inspect.getsourcelines(func)
 
-        yield {
-            "name": method[0],
-            "docstring": pydoc.getdoc(method[3]),
-            "defining_class": method[2],
-            "arguments": arguments,
-            "code": "".join(lines),
-            "lines": {"start": start_line, "total": len(lines)},
-            "file": inspect.getsourcefile(func),
-        }
+        yield Method(
+            name=method[0],
+            docstring=pydoc.getdoc(method[3]),
+            defining_class=method[2],
+            arguments=arguments,
+            code="".join(lines),
+            lines=Line(start=start_line, total=len(lines)),
+            file=inspect.getsourcefile(func),
+        )
 
 
-def build(thing):
+def build(thing) -> Class:
     """Build a dictionary mapping of a class."""
     if "django" in thing:
         os.environ["DJANGO_SETTINGS_MODULE"] = "classify.contrib.django.settings"
 
     sys.path.insert(0, "")
 
-    klass = {
-        "attributes": collections.defaultdict(list),
-        "methods": collections.defaultdict(list),
-        "properties": [],
-        "ancestors": [],
-        "parents": [],
-    }
-
     obj, name = pydoc.resolve(thing)
-    return classify(klass, obj, name)
+    return classify(obj, name)

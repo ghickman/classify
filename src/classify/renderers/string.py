@@ -1,11 +1,14 @@
-def to_string(structure) -> str:
+from ..library import Class
+
+
+def to_string(structure: Class) -> str:
     indent = " " * 4
 
     def attributes(attributes):
         attrs = []
         for name, definitions in attributes.items():
-            obj = definitions[-1]["object"]
-            attrs.append(f"{indent}{name} = {obj}\n")
+            value = definitions[-1].value
+            attrs.append(f"{indent}{name} = {value}\n")
         return "".join(attrs)
 
     def declaration(name, parents):
@@ -22,7 +25,7 @@ def to_string(structure) -> str:
         content = ""
         for definitions in methods.values():
             for d in definitions:
-                lines = d["code"].split("\n")[:-1]
+                lines = d.code.split("\n")[:-1]
                 for line in lines:
                     content += f"{indent}{line[4:]}\n"
                 content += "\n"
@@ -31,12 +34,12 @@ def to_string(structure) -> str:
     def parents(parents):
         return ", ".join([p.__name__ for p in parents])
 
-    content = declaration(structure["name"], structure["parents"])
+    content = declaration(structure.name, structure.parents)
     content += "\n"
     if docstring:
-        content += docstring(structure["docstring"])
-    content += attributes(structure["attributes"])
+        content += docstring(structure.docstring)
+    content += attributes(structure.attributes)
     content += "\n"
-    content += methods(structure["methods"])
+    content += methods(structure.methods)
 
     return content

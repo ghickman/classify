@@ -23,6 +23,7 @@ classifiers = [
   "Topic :: Documentation",
 ]
 dependencies = [
+  "attrs>=25.4.0",
   "click>=8.3.0",
   "jinja2>=2.7",
   "rich>=14.2.0",
@@ -80,3 +81,6 @@ sort_first = [
   "build-system",
   "project",
 ]
+
+[tool.ty.src]
+include = ["src", "tests"]
