@@ -1,7 +1,4 @@
-import pydoc
-
-
-def to_pager(structure) -> None:
+def to_string(structure) -> str:
     indent = " " * 4
 
     def attributes(attributes):
@@ -42,4 +39,4 @@ def to_pager(structure) -> None:
     content += "\n"
     content += methods(structure["methods"])
 
-    pydoc.pager(content)
+    return content

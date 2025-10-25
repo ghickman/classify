@@ -5,6 +5,7 @@ import sys
 from pathlib import Path
 
 import click
+from rich.syntax import DEFAULT_THEME
 
 from . import renderers
 from .library import build
@@ -13,10 +14,15 @@ from .renderers import Renderer
 
 @click.command()
 @click.argument("klass")
+@click.option(
+    "--console-theme",
+    default=DEFAULT_THEME,
+    help="Pygments theme to render console output with",
+)
 @click.option("--django-settings", default="classify.contrib.django.settings")
 @click.option(
     "--renderer",
-    default=Renderer.PAGER,
+    default=Renderer.CONSOLE,
     type=click.Choice(Renderer, case_sensitive=False),
 )
 @click.option(
@@ -29,7 +35,9 @@ from .renderers import Renderer
 )
 @click.option("-p", "--port", default=8000, type=click.INT)
 @click.option("-s", "--serve", is_flag=True)
-def run(klass, django_settings, renderer: Renderer, output_path, port, serve) -> None:
+def run(
+    klass, console_theme, django_settings, renderer: Renderer, output_path, port, serve
+) -> None:
     if django_settings:
         os.environ["DJANGO_SETTINGS_MODULE"] = django_settings
 
@@ -60,10 +68,12 @@ def run(klass, django_settings, renderer: Renderer, output_path, port, serve) ->
     structure["methods"] = collections.OrderedDict(sorted_methods)
 
     match renderer:
+        case Renderer.CONSOLE:
+            renderers.to_console(structure, console_theme)
         case Renderer.HTML:
             renderers.to_html(structure, output_path, serve, port)
         case Renderer.PAGER:
-            renderers.to_pager(structure)
+            renderers.to_pager(structure, console_theme)
 
     sys.exit(0)
 

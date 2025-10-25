@@ -5,6 +5,7 @@ import tempfile
 import webbrowser
 from http.server import SimpleHTTPRequestHandler
 from pathlib import Path
+from types import GeneratorType
 
 
 class Handler(SimpleHTTPRequestHandler):
@@ -15,14 +16,14 @@ class Handler(SimpleHTTPRequestHandler):
 
 @functools.singledispatch
 @contextlib.contextmanager
-def resolve_path(output_path: Path) -> Path:
+def resolve_path(output_path: Path) -> GeneratorType[Path]:
     output_path.mkdir(exist_ok=True)
     yield output_path
 
 
 @resolve_path.register
 @contextlib.contextmanager
-def _(empty: None) -> Path:  # noqa: ARG001
+def _(empty: None) -> GeneratorType[Path]:  # noqa: ARG001
     directory = tempfile.TemporaryDirectory(prefix="classify")
 
     yield Path(directory.name)
