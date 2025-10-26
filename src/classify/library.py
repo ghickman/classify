@@ -39,7 +39,7 @@ class Method:
     name: str
     docstring: str
     defining_class: str
-    arguments: inspect.FullArgSpec
+    arguments: str
     code: str
     lines: Line
     file: str | None = None
@@ -120,8 +120,8 @@ def build_attributes(attributes, obj) -> GeneratorType[Attribute]:
 def build_methods(methods) -> GeneratorType[Method]:
     for method in methods:
         func = getattr(method[2], method[0])
-        # Get the method arguments
-        arguments = inspect.getfullargspec(func)
+
+        arguments = inspect.signature(func).format()
 
         # Get source line details
         lines, start_line = inspect.getsourcelines(func)

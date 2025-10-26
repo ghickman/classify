@@ -39,7 +39,7 @@
                 {% for name, declarations in klass.methods.items() %}
                     {% for declaration in declarations %}
                     <div class="method">
-                        <h3>{{ name }}{{ declaration.arguments }} [{{ declaration.defining_class.__name__ }}]</h3>
+                        <h3>def {{ name }}{{ declaration.arguments }}: [{{ declaration.defining_class.__name__ }}]</h3>
                         <p>{{ declaration.docstring|e }}</p>
                         <p>Found on lines {{ declaration.lines.start }} to {{ declaration.lines.start+declaration.lines.total }} of {{ declaration.file }}</p>
                         <pre>{{ declaration.code }}</pre>
