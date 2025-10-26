@@ -144,5 +144,5 @@ def build(thing) -> Class:
 
     sys.path.insert(0, "")
 
-    obj, name = pydoc.resolve(thing)
+    obj, name = pydoc.resolve(thing)  # ty: ignore[not-iterable]
     return classify(obj, name)
