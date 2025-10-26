@@ -7,7 +7,7 @@ name = "classify"
 version = "0.6.0"
 description = "Generate concrete Class documentation for Python Classes."
 readme = "README.rst"
-requires-python = ">=3.13"
+requires-python = ">=3.12"
 authors = [
   {name = "George Hickman", email = "george@ghickman.co.uk"},
 ]
@@ -16,10 +16,9 @@ classifiers = [
   "Development Status :: 4 - Beta",
   "Intended Audience :: Developers",
   "License :: OSI Approved :: MIT License",
-  "Operating System :: MacOS :: MacOS X",
-  "Operating System :: POSIX",
-  "Programming Language :: Python :: 2.6",
-  "Programming Language :: Python :: 2.7",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
   "Topic :: Documentation",
 ]
 dependencies = [
@@ -41,6 +40,8 @@ dev = [
   "black>=25.9.0,<26",
   "django>=5.2.7",
   "ipdb>=0.13.13",
+  "nox>=2025.10.16",
+  "nox-uv>=0.6.3",
   "ruff>=0.14.2",
   "toml-sort>=0.24.3",
   "ty>=0.0.1a24",

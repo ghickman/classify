@@ -23,7 +23,7 @@ release:
     uv publish
 
 run *args="":
-    classify {{ args }}
+    uv run classify {{ args }}
 
 @console:
     just run django.views.generic.FormView --console-theme dracula

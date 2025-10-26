@@ -3,9 +3,9 @@ import functools
 import socketserver
 import tempfile
 import webbrowser
+from collections.abc import Generator
 from http.server import SimpleHTTPRequestHandler
 from pathlib import Path
-from types import GeneratorType
 
 from ..library import Class
 
@@ -18,14 +18,14 @@ class Handler(SimpleHTTPRequestHandler):
 
 @functools.singledispatch
 @contextlib.contextmanager
-def resolve_path(output_path: Path) -> GeneratorType[Path]:
+def resolve_path(output_path: Path) -> Generator:
     output_path.mkdir(exist_ok=True)
     yield output_path
 
 
 @resolve_path.register
 @contextlib.contextmanager
-def _(empty: None) -> GeneratorType[Path]:  # noqa: ARG001
+def _(empty: None) -> Generator:  # noqa: ARG001
     directory = tempfile.TemporaryDirectory(prefix="classify")
 
     yield Path(directory.name)

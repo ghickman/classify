@@ -4,7 +4,7 @@ import inspect
 import os
 import pydoc
 import sys
-from types import GeneratorType
+from collections.abc import Generator
 
 from attrs import Factory, frozen
 
@@ -104,7 +104,7 @@ def classify(obj: object, name=None) -> Class:
     )
 
 
-def build_attributes(attributes, obj) -> GeneratorType[Attribute]:
+def build_attributes(attributes, obj) -> Generator[Attribute, None, None]:
     """Build the Attribute list for the given object."""
     for attr in attributes:
         obj = getattr(attr[2], attr[0])
@@ -117,11 +117,11 @@ def build_attributes(attributes, obj) -> GeneratorType[Attribute]:
         )
 
 
-def build_methods(methods) -> GeneratorType[Method]:
+def build_methods(methods) -> Generator[Method, None, None]:
     for method in methods:
         func = getattr(method[2], method[0])
 
-        arguments = inspect.signature(func).format()
+        arguments = str(inspect.signature(func))
 
         # Get source line details
         lines, start_line = inspect.getsourcelines(func)
