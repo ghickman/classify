@@ -24,6 +24,26 @@ jobs:
       - name: Check formatting and linting
         run: just check
 
+  package:
+    name: "Build & verify package"
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: "actions/checkout@v4"
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@85856786d1ce8acfbcc2f13a5f3fbd6b938f9f41  # v7.1.2
+        with:
+          version: "latest"
+      - name: "Build package"
+        run: "uv build"
+      - name: "List result"
+        run: "ls -l dist"
+      - name: "Check wheel contents"
+        run: "uvx check-wheel-contents --toplevel classify dist/*.whl"
+      - name: "Check long_description"
+        run: "uvx twine check dist/*"
+
   test:
     runs-on: ubuntu-latest
     strategy:
