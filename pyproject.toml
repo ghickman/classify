@@ -5,8 +5,8 @@ build-backend = "uv_build"
 [project]
 name = "classify"
 version = "2025.10.1"
-description = "Generate concrete Class documentation for Python Classes."
-readme = "README.rst"
+description = "Generate concrete Class documentation for Python Classes"
+readme = "README.md"
 requires-python = ">=3.12"
 authors = [
   {name = "George Hickman", email = "george@ghickman.co.uk"},
@@ -33,7 +33,7 @@ classify = "classify.main:run"
 
 [project.urls]
 Repository = "https://github.com/ghickman/classify/"
-Changelog = "https://github.com/ghickman/classify/blob/main/CHANGELOG.rst"
+Changelog = "https://github.com/ghickman/classify/blob/main/CHANGELOG.md"
 
 [dependency-groups]
 dev = [
