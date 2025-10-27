@@ -34,6 +34,7 @@ from .renderers import Renderer
 )
 @click.option("-p", "--port", default=8000, type=click.INT)
 @click.option("-s", "--serve", is_flag=True)
+@click.version_option()
 def run(
     klass, console_theme, django_settings, renderer: Renderer, output_path, port, serve
 ) -> None:
