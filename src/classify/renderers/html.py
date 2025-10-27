@@ -1,5 +1,6 @@
 import contextlib
 import functools
+import os
 import socketserver
 import tempfile
 import webbrowser
@@ -36,8 +37,10 @@ def _(empty: None) -> Generator:  # noqa: ARG001
 def serve_output(port: int) -> None:
     httpd = socketserver.TCPServer(("", port), Handler)
 
-    print(f"Serving on port: {port}")
-    webbrowser.open_new_tab(f"http://localhost:{port}/")
+    if not os.environ.get("TEST_MODE", None):
+        print(f"Serving on port: {port}")
+        webbrowser.open_new_tab(f"http://localhost:{port}/")
+
     httpd.serve_forever()
 
 

@@ -38,13 +38,40 @@ Changelog = "https://github.com/ghickman/classify/blob/main/CHANGELOG.md"
 [dependency-groups]
 dev = [
   "black>=25.9.0,<26",
+  "coverage>=7.11.0",
   "django>=5.2.7",
+  "httpx>=0.28.1",
   "ipdb>=0.13.13",
   "nox>=2025.10.16",
   "nox-uv>=0.6.3",
+  "pytest>=8.4.2",
+  "pytest-env>=1.2.0",
   "ruff>=0.14.2",
   "toml-sort>=0.24.3",
   "ty>=0.0.1a24",
+]
+
+[tool.coverage.html]
+show_contexts = true
+
+[tool.coverage.report]
+# fail_under = 100
+show_missing = true
+skip_covered = true
+
+[tool.coverage.run]
+branch = true
+relative_files = true
+dynamic_context = "test_function"
+omit = [
+  "src/classify/contrib/*",
+]
+source = ["src", "tests"]
+
+[tool.pytest.ini_options]
+addopts = "--tb=native"
+env = [
+  "TEST_MODE=1",
 ]
 
 [tool.ruff]
@@ -53,7 +80,7 @@ extend-exclude = [
   "src/classify/contrib/django/",
   "src/classify/templates",
 ]
-src = ["src"]
+src = ["src", "tests"]
 
 [tool.ruff.lint]
 select = ["ALL"]

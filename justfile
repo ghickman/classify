@@ -1,5 +1,5 @@
 black *args="":
-    uv run black --check src {{ args }}
+    uv run black --check src tests {{ args }}
 
 ruff *args="":
     uv run ruff check {{ args }}
@@ -14,8 +14,8 @@ check: black ruff type-check
     {{ just_executable() }} toml-sort --check
 
 fix:
-    uv run black src
-    uv run ruff check --fix src
+    uv run black src tests
+    uv run ruff check --fix src tests
     {{ just_executable() }} toml-sort --in-place
 
 release:
@@ -30,3 +30,8 @@ run *args="":
 
 @html:
     just run django.views.generic.FormView --renderer html --output output
+
+test *args="":
+    uv run -m coverage run --module pytest tests {{ args }}
+    -uv run -m coverage report
+    uv run -m coverage html
