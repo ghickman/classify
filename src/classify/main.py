@@ -7,6 +7,7 @@ import click
 from rich.syntax import DEFAULT_THEME
 
 from . import renderers
+from .exceptions import NotAClassError
 from .library import build
 from .renderers import Renderer
 
@@ -38,13 +39,17 @@ from .renderers import Renderer
 def run(
     klass, console_theme, django_settings, renderer: Renderer, output_path, port, serve
 ) -> None:
-    if django_settings:
-        os.environ["DJANGO_SETTINGS_MODULE"] = django_settings
+    os.environ["DJANGO_SETTINGS_MODULE"] = django_settings
 
     try:
         structure = build(klass)
     except (ImportError, pydoc.ErrorDuringImport):
-        sys.stderr.write(f"Could not import: {sys.argv[1]}\n")
+        sys.stderr.write(f"Could not import: {klass}\n")
+        sys.exit(1)
+    except NotAClassError:
+        sys.stderr.write(
+            f"{klass} doesn't look like a class, please specify the path to a class\n"
+        )
         sys.exit(1)
 
     match renderer:
@@ -52,11 +57,11 @@ def run(
             renderers.to_console(structure, console_theme)
         case Renderer.HTML:
             renderers.to_html(structure, output_path, serve, port)
-        case Renderer.PAGER:
+        case Renderer.PAGER:  # pragma: no branch
+            # unclear why coverage thinks run() doesn't return, so marking as
+            # no branch for now
             renderers.to_pager(structure, console_theme)
 
-    sys.exit(0)
 
-
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     run()

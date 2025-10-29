@@ -31,13 +31,9 @@ def to_string(structure: Class) -> str:
                 content += "\n"
         return content
 
-    def parents(parents):
-        return ", ".join([p.__name__ for p in parents])
-
     content = declaration(structure.name, structure.parents)
     content += "\n"
-    if docstring:
-        content += docstring(structure.docstring)
+    content += docstring(structure.docstring) if docstring else ""
     content += attributes(structure.attributes)
     content += "\n"
     content += methods(structure.methods)

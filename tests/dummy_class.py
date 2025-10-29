@@ -7,6 +7,10 @@ class DummyParent:
 
 
 class DummyClass(DummyParent):
+    """The main testing class"""
+
+    some_attribute = 7
+
     def __init__(self):
         super().__init__()
 

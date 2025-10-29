@@ -1,0 +1,2 @@
+class NotAClassError(Exception):
+    pass

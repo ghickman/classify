@@ -1,12 +1,13 @@
 import builtins
 import collections
 import inspect
-import os
 import pydoc
 import sys
 from collections.abc import Generator
 
 from attrs import Factory, frozen
+
+from .exceptions import NotAClassError
 
 
 @frozen
@@ -64,12 +65,7 @@ def get_members(obj):
     ]
 
 
-def classify(obj: object, name=None) -> Class:
-    if not inspect.isclass(obj):
-        prefix = name if name else "Input"
-        msg = f"{prefix} doesn't look like a class, please specify the path to a class"
-        raise TypeError(msg)
-
+def classify(obj: object) -> Class:
     # flatten the MRO of the given class and flip the order so it's the first
     # non-object class first
     mro = [cls for cls in reversed(inspect.getmro(obj)) if cls is not builtins.object]
@@ -139,10 +135,12 @@ def build_methods(methods) -> Generator[Method, None, None]:
 
 def build(thing) -> Class:
     """Build a dictionary mapping of a class."""
-    if "django" in thing:
-        os.environ["DJANGO_SETTINGS_MODULE"] = "classify.contrib.django.settings"
-
     sys.path.insert(0, "")
 
-    obj, name = pydoc.resolve(thing)  # ty: ignore[not-iterable]
-    return classify(obj, name)
+    obj, _ = pydoc.resolve(thing)  # ty: ignore[not-iterable]
+    # TODO: what is name here??
+
+    if not inspect.isclass(obj):
+        raise NotAClassError
+
+    return classify(obj)

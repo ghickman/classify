@@ -9,7 +9,7 @@ from .dummy_class import DummyClass, DummyParent
     ("cls", "expected"),
     [
         (DummyParent, ["__dict__", "__weakref__", "one", "three"]),
-        (DummyClass, ["__init__", "one", "two"]),
+        (DummyClass, ["__init__", "one", "some_attribute", "two"]),
     ],
     ids=["parent", "child"],
 )

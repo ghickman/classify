@@ -55,7 +55,7 @@ dev = [
 show_contexts = true
 
 [tool.coverage.report]
-# fail_under = 100
+fail_under = 100
 show_missing = true
 skip_covered = true
 
@@ -64,6 +64,7 @@ branch = true
 relative_files = true
 dynamic_context = "test_function"
 omit = [
+  "src/classify/__main__.py",
   "src/classify/contrib/*",
   "tests/dummy_class.py",
 ]
