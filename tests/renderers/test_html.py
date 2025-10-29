@@ -9,19 +9,12 @@ import pytest
 from classify.renderers.html import resolve_path, to_html
 
 
-class DummyClass:
-    some_attr = 7
-
-    def one(self):
-        pass
-
-
 @pytest.fixture(scope="session")
 def classify_server():
     ds_proc = subprocess.Popen(
         [
             "classify",
-            "tests.renderers.test_html.DummyClass",
+            "tests.dummy_class.DummyClass",
             "--renderer",
             "html",
             "--serve",

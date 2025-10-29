@@ -65,6 +65,7 @@ relative_files = true
 dynamic_context = "test_function"
 omit = [
   "src/classify/contrib/*",
+  "tests/dummy_class.py",
 ]
 source = ["src", "tests"]
 

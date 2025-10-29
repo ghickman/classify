@@ -2,28 +2,7 @@ import pytest
 
 from classify.library import get_members
 
-
-class DummyParent:
-    def one(self):
-        print("one parent")
-
-    def three(self):
-        pass
-
-
-class DummyClass(DummyParent):
-    def __init__(self):
-        super().__init__()
-
-    def _internal(self):
-        pass
-
-    def one(self):
-        super().one()
-        print("one child")
-
-    def two(self):
-        pass
+from .dummy_class import DummyClass, DummyParent
 
 
 @pytest.mark.parametrize(

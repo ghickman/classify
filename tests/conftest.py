@@ -1,15 +1,6 @@
 import pytest
 
-from classify.library import Attribute, Class, Line, Method
-
-
-def attribute(name, **kwargs):
-    return Attribute(
-        name=name,
-        object=kwargs.get("object", ""),
-        defining_class=kwargs.get("defining_class", ""),
-        value=kwargs.get("value", ""),
-    )
+from classify.library import Class, Line, Method
 
 
 def method(name, **kwargs):

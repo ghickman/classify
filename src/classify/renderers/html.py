@@ -11,7 +11,7 @@ from pathlib import Path
 from ..library import Class
 
 
-class Handler(SimpleHTTPRequestHandler):
+class Handler(SimpleHTTPRequestHandler):  # pragma: no cover
     def do_GET(self):
         self.path = "classify.html"
         return SimpleHTTPRequestHandler.do_GET(self)
@@ -34,7 +34,7 @@ def _(empty: None) -> Generator:  # noqa: ARG001
     directory.cleanup()
 
 
-def serve_output(port: int) -> None:
+def serve_output(port: int) -> None:  # pragma: no cover
     httpd = socketserver.TCPServer(("", port), Handler)
 
     if not os.environ.get("TEST_MODE", None):
@@ -59,5 +59,5 @@ def to_html(structure: Class, output_path: Path | None, serve: bool, port: int) 
             print(f"Wrote: {full_path}")
             return
 
-        with contextlib.chdir(path):
+        with contextlib.chdir(path):  # pragma: no cover
             serve_output(port)
