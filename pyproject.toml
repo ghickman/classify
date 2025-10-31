@@ -66,6 +66,7 @@ dynamic_context = "test_function"
 omit = [
   "src/classify/__main__.py",
   "src/classify/contrib/*",
+  "src/classify/django.py",
   "tests/dummy_class.py",
 ]
 source = ["src", "tests"]

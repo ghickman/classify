@@ -7,6 +7,7 @@ import click
 from rich.syntax import DEFAULT_THEME
 
 from . import renderers
+from .django import setup_django
 from .exceptions import NotAClassError
 from .library import build
 from .renderers import Renderer
@@ -19,7 +20,7 @@ from .renderers import Renderer
     default=DEFAULT_THEME,
     help="Pygments theme to render console output with",
 )
-@click.option("--django-settings", default="classify.contrib.django.settings")
+@click.option("--django-settings")
 @click.option(
     "--renderer",
     default=Renderer.CONSOLE,
@@ -39,7 +40,8 @@ from .renderers import Renderer
 def run(
     klass, console_theme, django_settings, renderer: Renderer, output_path, port, serve
 ) -> None:
-    os.environ["DJANGO_SETTINGS_MODULE"] = django_settings
+    if django_settings:
+        setup_django(django_settings)
 
     try:
         structure = build(klass)

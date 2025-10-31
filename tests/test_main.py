@@ -11,8 +11,13 @@ from classify.main import run
     [
         ["tests.dummy_class.DummyClass"],
         ["tests.dummy_class.DummyClass", "--renderer", "console"],
+        [
+            "tests.dummy_class.DummyClass",
+            "--django-settings",
+            "classify.contrib.django.settings",
+        ],
     ],
-    ids=["default-renderer", "console-renderer"],
+    ids=["default-renderer", "django-settings", "console-renderer"],
 )
 def test_run(invocation):
     runner = CliRunner()
