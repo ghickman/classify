@@ -1,4 +1,3 @@
-import os
 import pydoc
 import sys
 from pathlib import Path
@@ -9,7 +8,7 @@ from rich.syntax import DEFAULT_THEME
 from . import renderers
 from .django import setup_django
 from .exceptions import NotAClassError
-from .library import build
+from .library import classify, resolve
 from .renderers import Renderer
 
 
@@ -44,15 +43,23 @@ def run(
         setup_django(django_settings)
 
     try:
-        structure = build(klass)
-    except (ImportError, pydoc.ErrorDuringImport):
-        sys.stderr.write(f"Could not import: {klass}\n")
+        obj = resolve(klass)
+    except ImportError:
+        click.echo(f"Could not import: {klass}", err=True)
         sys.exit(1)
-    except NotAClassError:
-        sys.stderr.write(
-            f"{klass} doesn't look like a class, please specify the path to a class\n"
+    except pydoc.ErrorDuringImport as e:
+        click.echo(
+            f"Could not import '{klass}', the original error was:\n {e}", err=True
         )
         sys.exit(1)
+    except NotAClassError:
+        click.echo(
+            f"{klass} doesn't look like a class, please specify the path to a class",
+            err=True,
+        )
+        sys.exit(1)
+
+    structure = classify(obj)
 
     match renderer:
         case Renderer.CONSOLE:

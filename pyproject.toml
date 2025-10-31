@@ -105,6 +105,13 @@ ignore = [
 [tool.ruff.lint.isort]
 lines-after-imports = 2
 
+[tool.ruff.lint.per-file-ignores]
+"tests/import_error.py" = [
+  "EM101",
+  "TRY002",
+  "TRY003",
+]
+
 [tool.tomlsort]
 spaces_before_inline_comment = 2
 trailing_comma_inline_array = true

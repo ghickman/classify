@@ -4,10 +4,14 @@ import inspect
 import pydoc
 import sys
 from collections.abc import Generator
+from typing import TypeVar
 
 from attrs import Factory, frozen
 
 from .exceptions import NotAClassError
+
+
+C = TypeVar("C")
 
 
 @frozen
@@ -65,7 +69,7 @@ def get_members(obj):
     ]
 
 
-def classify(obj: object) -> Class:
+def classify[C](obj: type[C]) -> Class:
     # flatten the MRO of the given class and flip the order so it's the first
     # non-object class first
     mro = [cls for cls in reversed(inspect.getmro(obj)) if cls is not builtins.object]
@@ -133,14 +137,13 @@ def build_methods(methods) -> Generator[Method, None, None]:
         )
 
 
-def build(thing) -> Class:
-    """Build a dictionary mapping of a class."""
+def resolve(thing: str) -> type[C]:
+    """Find the given thing and ensure it's a class"""
     sys.path.insert(0, "")
 
     obj, _ = pydoc.resolve(thing)  # ty: ignore[not-iterable]
-    # TODO: what is name here??
 
     if not inspect.isclass(obj):
         raise NotAClassError
 
-    return classify(obj)
+    return obj

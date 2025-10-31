@@ -61,6 +61,17 @@ def test_run_with_html_renderer_and_output_set():
     assert "DummyClass" in output
 
 
+def test_run_with_import_error():
+    runner = CliRunner()
+
+    result = runner.invoke(run, ["tests.import_error.Foo"])
+
+    assert result.exit_code == 1
+    assert result.output.startswith(
+        "Could not import 'tests.import_error.Foo', the original error was:"
+    )
+
+
 def test_run_with_pager_renderer():
     runner = CliRunner()
 
