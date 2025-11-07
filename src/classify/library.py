@@ -4,7 +4,7 @@ import inspect
 import pydoc
 import sys
 from collections.abc import Generator
-from typing import TypeVar
+from typing import Any, Literal, TypeVar
 
 from attrs import Factory, frozen
 
@@ -12,6 +12,15 @@ from .exceptions import NotAClassError
 
 
 C = TypeVar("C")
+Kind = Literal[
+    "class method",
+    "static method",
+    "property",
+    "method",
+    "data",
+    "data descriptor",
+    "readonly property",
+]
 
 
 @frozen
@@ -40,6 +49,14 @@ class Line:
 
 
 @frozen
+class Member[C]:
+    name: str
+    kind: Kind
+    cls: type[C]
+    obj: Any
+
+
+@frozen
 class Method:
     name: str
     docstring: str
@@ -50,7 +67,7 @@ class Method:
     file: str | None = None
 
 
-def get_members(obj):
+def get_members(obj) -> list[Member]:
     """
     Get members from the given object
 
@@ -60,12 +77,20 @@ def get_members(obj):
      - class
      - object
     """
-    members = pydoc.classify_class_attrs(obj)
+    members = [
+        Member(
+            name=m[0],
+            kind=m[1],
+            cls=m[2],
+            obj=m[3],
+        )
+        for m in pydoc.classify_class_attrs(obj)
+    ]
     # filter down to non-private items and those defined on the given object
     return [
         member
         for member in members
-        if pydoc.visiblename(member[0], obj=obj) and member[2] == obj
+        if pydoc.visiblename(member.name, obj=obj) and member.cls == obj
     ]
 
 
@@ -83,13 +108,13 @@ def classify[C](obj: type[C]) -> Class:
         members = list(get_members(cls))
 
         ## ATTRIBUTES
-        class_attrs = [m for m in members if m[1] == "data"]
+        class_attrs = [m for m in members if m.kind == "data"]
         for attribute in build_attributes(class_attrs, obj):
             attributes[attribute.name].append(attribute)
 
         ## METHODS
         instance_methods = [
-            m for m in members if m[1] in ["method", "class method", "static method"]
+            m for m in members if m.kind in ["method", "class method", "static method"]
         ]
         for method in build_methods(instance_methods):
             methods[method.name].append(method)
@@ -107,19 +132,19 @@ def classify[C](obj: type[C]) -> Class:
 def build_attributes(attributes, obj) -> Generator[Attribute, None, None]:
     """Build the Attribute list for the given object."""
     for attr in attributes:
-        obj = getattr(attr[2], attr[0])
+        obj = getattr(attr.cls, attr.name)
 
         yield Attribute(
-            name=attr[0],
+            name=attr.name,
             object=obj,
-            defining_class=attr[2].__name__,
+            defining_class=attr.cls.__name__,
             value=str(obj),
         )
 
 
 def build_methods(methods) -> Generator[Method, None, None]:
     for method in methods:
-        func = getattr(method[2], method[0])
+        func = getattr(method.cls, method.name)
 
         arguments = str(inspect.signature(func))
 
@@ -127,9 +152,9 @@ def build_methods(methods) -> Generator[Method, None, None]:
         lines, start_line = inspect.getsourcelines(func)
 
         yield Method(
-            name=method[0],
-            docstring=pydoc.getdoc(method[3]),
-            defining_class=method[2],
+            name=method.name,
+            docstring=pydoc.getdoc(method.obj),
+            defining_class=method.cls,
             arguments=arguments,
             code="".join(lines),
             lines=Line(start=start_line, total=len(lines)),

@@ -16,6 +16,6 @@ from .dummy_class import DummyClass, DummyParent
 def test_get_members(cls, expected):
     members = get_members(cls)
 
-    names = [m[0] for m in members]
+    names = [m.name for m in members]
 
     assert names == expected, names

@@ -3,6 +3,14 @@ import functools
 from django.utils.functional import cached_property
 
 
+def my_decorator(f):
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        f(*args, **kwargs)
+
+    return wrapper
+
+
 class DummyParent:
     def one(self):
         print("one parent")
@@ -27,6 +35,10 @@ class DummyClass(DummyParent):
         print("one child")
 
     def two(self):
+        pass
+
+    @my_decorator
+    def four(self):
         pass
 
     # TODO: support rendering properties as methods
