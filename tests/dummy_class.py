@@ -1,3 +1,8 @@
+import functools
+
+from django.utils.functional import cached_property
+
+
 class DummyParent:
     def one(self):
         print("one parent")
@@ -23,3 +28,18 @@ class DummyClass(DummyParent):
 
     def two(self):
         pass
+
+    # TODO: support rendering properties as methods
+    @property
+    def my_property(self):
+        pass
+
+    # TODO: support cached properties
+
+    # @functools.cached_property
+    # def my_cached_prop(self):
+    #     pass
+
+    # @cached_property
+    # def my_dj_cached_prop(self):
+    #     pass

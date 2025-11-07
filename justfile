@@ -35,3 +35,6 @@ test *args="":
     uv run -m coverage run --module pytest tests {{ args }}
     -uv run -m coverage report
     uv run -m coverage html
+
+e2e:
+    classify tests.dummy_class.DummyClass --django-settings classify.contrib.django.settings --console-theme dracula
