@@ -1,5 +1,6 @@
 import functools
 
+from django.utils.decorators import classonlymethod
 from django.utils.functional import cached_property
 
 
@@ -46,12 +47,22 @@ class DummyClass(DummyParent):
     def my_property(self):
         pass
 
-    # TODO: support cached properties
+    @functools.cached_property
+    def my_cached_prop(self):
+        pass
 
-    # @functools.cached_property
-    # def my_cached_prop(self):
-    #     pass
+    @cached_property
+    def my_dj_cached_prop(self):
+        pass
 
-    # @cached_property
-    # def my_dj_cached_prop(self):
-    #     pass
+    @classmethod
+    def class_method(cls):
+        pass
+
+    @classonlymethod
+    def class_only_method(self):
+        pass
+
+    @staticmethod
+    def static_method():
+        pass

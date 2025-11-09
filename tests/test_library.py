@@ -9,7 +9,19 @@ from .dummy_class import DummyClass, DummyParent
     ("cls", "expected"),
     [
         (DummyParent, ["__dict__", "__weakref__", "one", "three"]),
-        (DummyClass, ["__init__", "my_property", "one", "some_attribute", "two"]),
+        (
+            DummyClass,
+            [
+                "__init__",
+                "four",
+                "my_cached_prop",
+                "my_dj_cached_prop",
+                "my_property",
+                "one",
+                "some_attribute",
+                "two",
+            ],
+        ),
     ],
     ids=["parent", "child"],
 )

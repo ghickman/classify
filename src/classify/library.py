@@ -142,9 +142,19 @@ def build_attributes(attributes, obj) -> Generator[Attribute, None, None]:
         )
 
 
-def build_methods(methods) -> Generator[Method, None, None]:
-    for method in methods:
-        func = getattr(method.cls, method.name)
+def build_methods(members) -> Generator[Method, None, None]:
+    for member in members:
+        func = member.obj
+
+        # get target of cached property decorators
+        if hasattr(func, "func"):
+            while getattr(func, "func", None):
+                func = func.func
+
+        # unwrap decorated methods and functions
+        if hasattr(func, "__wrapped__"):  # decorated methods
+            while getattr(func, "__wrapped__", None):
+                func = func.__wrapped__
 
         arguments = str(inspect.signature(func))
 
@@ -152,9 +162,9 @@ def build_methods(methods) -> Generator[Method, None, None]:
         lines, start_line = inspect.getsourcelines(func)
 
         yield Method(
-            name=method.name,
-            docstring=pydoc.getdoc(method.obj),
-            defining_class=method.cls,
+            name=member.name,
+            docstring=pydoc.getdoc(member.obj),
+            defining_class=member.cls,
             arguments=arguments,
             code="".join(lines),
             lines=Line(start=start_line, total=len(lines)),
