@@ -25,6 +25,9 @@ class DummyClass(DummyParent):
 
     some_attribute = 7
 
+    class Meta:
+        abc = 123
+
     def __init__(self):
         super().__init__()
 
