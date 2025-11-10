@@ -36,5 +36,5 @@ test *args="":
     -uv run -m coverage report
     uv run -m coverage html
 
-e2e:
-    classify tests.dummy_class.DummyClass --django-settings classify.contrib.django.settings --console-theme dracula
+e2e *args="--console-theme dracula":
+    classify tests.dummy_class.DummyClass --django-settings classify.contrib.django.settings {{ args }}

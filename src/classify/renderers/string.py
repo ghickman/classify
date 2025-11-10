@@ -1,10 +1,12 @@
-from ..library import Class
+from ..library import Class, Method
 
 
-indent = " " * 4
+# define this here so we know what "1" indent is and can remove it for inner
+# class declarations
+DEFAULT_INDENT_WIDTH = 4
 
 
-def attributes(attributes):
+def attributes(attributes, indent) -> str:
     attrs = []
     for name, definitions in attributes.items():
         value = definitions[-1].value
@@ -12,12 +14,23 @@ def attributes(attributes):
     return "".join(attrs)
 
 
-def declaration(name, parents):
-    parents = ", ".join([p.__name__ for p in parents])
-    return f"class {name}({parents}):"
+def classes(classes, indent) -> str:
+    content = [to_string(c, indent=indent + indent) for c in classes]
+    return "".join(content)
 
 
-def docstring(docstring):
+def declaration(name, parents, indent) -> str:
+    indent = indent[:-DEFAULT_INDENT_WIDTH]
+    content = f"{indent}class {name}"
+
+    if parents:
+        parents = ", ".join([p.__name__ for p in parents])
+        content = f"{content}({parents})"
+
+    return f"{content}:"
+
+
+def docstring(docstring, indent) -> str:
     if not docstring:
         return ""
 
@@ -27,23 +40,31 @@ def docstring(docstring):
     return f"{quotes}{block}{quotes}"
 
 
-def methods(methods):
+def methods(methods: dict[str, list[Method]], indent) -> str:
     content = ""
     for definitions in methods.values():
-        for d in definitions:
-            lines = d.code.split("\n")[:-1]
+        for i, method in enumerate(definitions):
+            if len(definitions) > 1 and i == 0:
+                content += f"{indent}# Defined on: {method.defining_class}\n"
+            lines = method.code.split("\n")[:-1]
             for line in lines:
+                # TODO: dedent code at source so defined indent isn't tied to
+                # presentation indent
                 content += f"{indent}{line[4:]}\n"
             content += "\n"
-    return content
+
+    # add strip to remove the trailing newline, rather than polluting the loop
+    # with logic to work out if we're on the final loop iteration
+    return content.strip("\n")
 
 
-def to_string(structure: Class) -> str:
-    content = declaration(structure.name, structure.parents)
+def to_string(structure: Class, indent: str = " " * DEFAULT_INDENT_WIDTH) -> str:
+    content = declaration(structure.name, structure.parents, indent)
     content += "\n"
-    content += docstring(structure.docstring) if docstring else ""
-    content += attributes(structure.attributes)
+    content += docstring(structure.docstring, indent) if docstring else ""
+    content += attributes(structure.attributes, indent)
     content += "\n"
-    content += methods(structure.methods)
+    content += classes(structure.classes, indent)
+    content += methods(structure.methods, indent)
 
     return content

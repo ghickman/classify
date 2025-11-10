@@ -1,0 +1,65 @@
+<h1>class {{ klass.name }}</h1>
+
+{% if klass.docstring %}
+<pre>{{ klass.docstring }}</pre>
+{% endif %}
+
+{% if klass.ancestors %}
+  <h2>Ancestors (MRO)</h2>
+  <ol>
+    {% for ancestor in klass.ancestors %}
+    <li>{{ ancestor }}</li>
+    {% endfor %}
+  </ol>
+{% endif %}
+
+{% if klass.attributes %}
+  <h2>Attributes</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>&nbsp;</th>
+        <th>Defined in</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for name, attributes in klass.attributes.items() %}
+        {% for attribute in attributes %}
+          <tr>
+            <td>
+              <code class="attribute{% if not loop.last %} overridden{% endif %}"{% if not loop.last %} style="text-decoration:line-through"{% endif %}>
+                {{ name }} = {{ attribute.object|e }}
+              </code>
+            </td>
+            <td>{{ attribute.defining_class }}</td>
+          </tr>
+        {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
+{% endif %}
+
+{% if klass.classes %}
+  <h2>Inner classes</h2>
+
+  {% for foo in klass.classes %}
+    {% with klass=foo %}
+    {% include "class.html" %}
+    {% endwith %}
+  {% endfor %}
+
+{% endif %}
+
+{% if klass.methods %}
+  <h2>Methods</h2>
+  {% for name, declarations in klass.methods.items() %}
+    {% for declaration in declarations %}
+      <div class="method">
+        <h3>def {{ name }}{{ declaration.arguments }}: [{{ declaration.defining_class }}]</h3>
+        <p>{{ declaration.docstring|e }}</p>
+        <p>Found on lines {{ declaration.lines.start }} to {{ declaration.lines.start+declaration.lines.total }} of {{ declaration.file }}</p>
+        <pre>{{ declaration.code }}</pre>
+      </div>
+    {% endfor %}
+  {% endfor %}
+{% endif %}

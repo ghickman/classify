@@ -12,6 +12,7 @@ from .dummy_class import DummyClass, DummyParent
         (
             DummyClass,
             [
+                "Meta",
                 "__init__",
                 "class_method",
                 "class_only_method",

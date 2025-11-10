@@ -38,6 +38,7 @@ class Class:
     ancestors: list[str]
     parents: list[str]
     attributes: dict[str, list[Attribute]]
+    classes: list["Class"]
     methods: dict[str, list["Method"]]
     properties: list = Factory(list)
 
@@ -101,7 +102,7 @@ def build_methods(members: list[Member]) -> Generator[Method, None, None]:
         yield Method(
             name=member.name,
             docstring=pydoc.getdoc(member.obj),
-            defining_class=member.cls,
+            defining_class=member.cls.__name__,
             arguments=arguments,
             code="".join(lines),
             lines=Line(start=start_line, total=len(lines)),
@@ -117,15 +118,24 @@ def classify[C](obj: type[C]) -> Class:
     # build up dicts of attrs&methods, by name, because they can be defined on
     # more than one class in the MRO
     attributes = collections.defaultdict(list)
+    classes = []
     methods = collections.defaultdict(list)
 
     for cls in mro:
         members = list(get_members(cls))
 
         ## ATTRIBUTES
-        class_attrs = [m for m in members if m.kind == "data"]
+        class_attrs = [
+            m for m in members if m.kind == "data" and not inspect.isclass(m.obj)
+        ]
         for attribute in build_attributes(class_attrs):
             attributes[attribute.name].append(attribute)
+
+        ## CLASSES
+        inner_classes = [
+            m for m in members if m.kind == "data" and inspect.isclass(m.obj)
+        ]
+        classes.extend(classify(c.obj) for c in inner_classes)
 
         ## METHODS
         instance_methods = [
@@ -137,9 +147,10 @@ def classify[C](obj: type[C]) -> Class:
     return Class(
         name=obj.__name__,
         docstring=pydoc.getdoc(obj),
-        ancestors=[k.__name__ for k in mro],
-        parents=inspect.getclasstree([obj])[-1][0][1],
+        ancestors=[k.__name__ for k in mro[:-1]],
+        parents=get_parents(obj),
         attributes=dict(sorted(attributes.items())),
+        classes=sorted(classes),
         methods=dict(sorted(methods.items())),
     )
 
@@ -169,6 +180,16 @@ def get_members(obj) -> list[Member]:
         for member in members
         if pydoc.visiblename(member.name, obj=obj) and member.cls == obj
     ]
+
+
+def get_parents[C](obj: type[C]) -> list[str]:
+    tree = inspect.getclasstree([obj])
+
+    # getclasstree returns a list of tuples, containing a class, and tuple with
+    # that classes parents.  We just want the parents for the given obj.
+    raw_parents = tree[-1][0][1]
+
+    return [c for c in raw_parents if c is not builtins.object]
 
 
 def resolve(thing: str) -> type[C]:
