@@ -26,6 +26,7 @@ dependencies = [
   "click>=8.3.0",
   "jinja2>=2.7",
   "rich>=14.2.0",
+  "structlog>=25.5.0",
 ]
 
 [project.scripts]

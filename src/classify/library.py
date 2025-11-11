@@ -6,9 +6,13 @@ import sys
 from collections.abc import Generator
 from typing import Any, Literal, TypeVar
 
+import structlog
 from attrs import Factory, frozen
 
 from .exceptions import NotAClassError
+
+
+logger = structlog.get_logger()
 
 
 C = TypeVar("C")
@@ -71,6 +75,7 @@ class Method:
 def build_attributes(members: list[Member]) -> Generator[Attribute, None, None]:
     """Build the Attribute list for the given Members"""
     for member in members:
+        logger.debug("extracting attribute", member=member)
         yield Attribute(
             name=member.name,
             object=member.obj,
@@ -82,6 +87,8 @@ def build_attributes(members: list[Member]) -> Generator[Attribute, None, None]:
 def build_methods(members: list[Member]) -> Generator[Method, None, None]:
     """Build the Method list for the given Members"""
     for member in members:
+        log = logger.bind(member=member)
+        log.debug("extracting method")
         func = member.obj
 
         # get target of cached property decorators
@@ -99,6 +106,8 @@ def build_methods(members: list[Member]) -> Generator[Method, None, None]:
         # Get source line details
         lines, start_line = inspect.getsourcelines(func)
 
+        file = inspect.getsourcefile(func)
+
         yield Method(
             name=member.name,
             docstring=pydoc.getdoc(member.obj),
@@ -106,7 +115,7 @@ def build_methods(members: list[Member]) -> Generator[Method, None, None]:
             arguments=arguments,
             code="".join(lines),
             lines=Line(start=start_line, total=len(lines)),
-            file=inspect.getsourcefile(func),
+            file=file,
         )
 
 
@@ -121,7 +130,9 @@ def classify[C](obj: type[C]) -> Class:
     classes = []
     methods = collections.defaultdict(list)
 
+    structlog.contextvars.clear_contextvars()
     for cls in mro:
+        structlog.contextvars.bind_contextvars(**{"class": cls.__name__})
         members = list(get_members(cls))
 
         ## ATTRIBUTES

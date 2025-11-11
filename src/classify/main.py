@@ -1,8 +1,10 @@
+import logging
 import pydoc
 import sys
 from pathlib import Path
 
 import click
+import structlog
 from rich.syntax import DEFAULT_THEME
 
 from . import renderers
@@ -19,6 +21,7 @@ from .renderers import Renderer
     default=DEFAULT_THEME,
     help="Pygments theme to render console output with",
 )
+@click.option("--debug", is_flag=True)
 @click.option("--django-settings")
 @click.option(
     "--renderer",
@@ -37,10 +40,28 @@ from .renderers import Renderer
 @click.option("-s", "--serve", is_flag=True)
 @click.version_option()
 def run(
-    klass, console_theme, django_settings, renderer: Renderer, output_path, port, serve
+    klass,
+    console_theme,
+    debug,
+    django_settings,
+    renderer: Renderer,
+    output_path,
+    port,
+    serve,
 ) -> None:
     if django_settings:
         setup_django(django_settings)
+
+    default_log_level = logging.DEBUG if debug else logging.WARNING
+    structlog.configure(
+        processors=[
+            structlog.contextvars.merge_contextvars,
+            structlog.processors.StackInfoRenderer(),
+            structlog.dev.set_exc_info,
+            structlog.dev.ConsoleRenderer(),
+        ],
+        wrapper_class=structlog.make_filtering_bound_logger(default_log_level),
+    )
 
     try:
         obj = resolve(klass)
