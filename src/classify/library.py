@@ -32,7 +32,7 @@ class Attribute:
     name: str
     object: str
     defining_class: str
-    value: str
+    value: Any
 
 
 @frozen
@@ -76,11 +76,17 @@ def build_attributes(members: list[Member]) -> Generator[Attribute, None, None]:
     """Build the Attribute list for the given Members"""
     for member in members:
         logger.debug("extracting attribute", member=member)
+
+        if inspect.isclass(member.obj):
+            value = member.obj.__name__
+        else:
+            value = str(member.obj)
+
         yield Attribute(
             name=member.name,
             object=member.obj,
             defining_class=member.cls.__name__,
-            value=str(member.obj),
+            value=value,
         )
 
 
@@ -136,16 +142,12 @@ def classify[C](obj: type[C]) -> Class:
         members = list(get_members(cls))
 
         ## ATTRIBUTES
-        class_attrs = [
-            m for m in members if m.kind == "data" and not inspect.isclass(m.obj)
-        ]
+        class_attrs = [m for m in members if m.kind == "data" and not is_inner_class(m)]
         for attribute in build_attributes(class_attrs):
             attributes[attribute.name].append(attribute)
 
         ## CLASSES
-        inner_classes = [
-            m for m in members if m.kind == "data" and inspect.isclass(m.obj)
-        ]
+        inner_classes = [m for m in members if m.kind == "data" and is_inner_class(m)]
         classes.extend(classify(c.obj) for c in inner_classes)
 
         ## METHODS
@@ -201,6 +203,18 @@ def get_parents[C](obj: type[C]) -> list[str]:
     raw_parents = tree[-1][0][1]
 
     return [c for c in raw_parents if c is not builtins.object]
+
+
+def is_inner_class(member: Member) -> bool:
+    if not inspect.isclass(member.obj):
+        return False
+
+    # inner class' __qualname__ will reflect that of the class they are defined
+    # on, eg the.module.MyClass.Inner.  This check uses member.cls to build up
+    # a prefix that can be removed from member.obj's __qualname__.  If the
+    # remainder matches member.name then we have an inner class.
+    name = member.obj.__qualname__.removeprefix(f"{member.cls.__qualname__}.")
+    return name == member.name
 
 
 def resolve(thing: str) -> type[C]:
