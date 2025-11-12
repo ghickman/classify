@@ -28,7 +28,7 @@
           <tr>
             <td>
               <code class="attribute{% if not loop.last %} overridden{% endif %}"{% if not loop.last %} style="text-decoration:line-through"{% endif %}>
-                {{ name }} = {{ attribute.object|e }}
+                {{ name }} = {{ attribute.value|attribute }}
               </code>
             </td>
             <td>{{ attribute.defining_class }}</td>

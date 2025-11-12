@@ -1,5 +1,6 @@
 import contextlib
 import functools
+import inspect
 import os
 import socketserver
 import tempfile
@@ -15,6 +16,16 @@ class Handler(SimpleHTTPRequestHandler):  # pragma: no cover
     def do_GET(self):
         self.path = "classify.html"
         return SimpleHTTPRequestHandler.do_GET(self)
+
+
+def attribute_value(value):
+    if isinstance(value, str):
+        return f'"{value}"'
+
+    if inspect.isclass(value):
+        return value.__name__
+
+    return value
 
 
 @functools.singledispatch
@@ -48,6 +59,7 @@ def to_html(structure: Class, output_path: Path | None, serve: bool, port: int) 
     from jinja2 import Environment, PackageLoader  # noqa: PLC0415
 
     env = Environment(loader=PackageLoader("classify", "templates"))
+    env.filters["attribute"] = attribute_value
     template = env.get_template("web.html")
     output = template.render(klass=structure)
 

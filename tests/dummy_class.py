@@ -23,7 +23,9 @@ class DummyParent:
 class DummyClass(DummyParent):
     """The main testing class"""
 
-    some_attribute = 7
+    my_class = DummyParent
+    my_int = 7
+    my_string = "value"
 
     class Meta:
         abc = 123

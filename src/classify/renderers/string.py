@@ -1,3 +1,5 @@
+import inspect
+
 from ..library import Class, Method
 
 
@@ -10,6 +12,13 @@ def attributes(attributes, indent) -> str:
     attrs = []
     for name, definitions in attributes.items():
         value = definitions[-1].value
+
+        if isinstance(value, str):
+            value = f'"{value}"'
+
+        if inspect.isclass(value):
+            value = value.__name__
+
         attrs.append(f"{indent}{name} = {value}\n")
     return "".join(attrs)
 

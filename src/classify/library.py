@@ -77,16 +77,11 @@ def build_attributes(members: list[Member]) -> Generator[Attribute, None, None]:
     for member in members:
         logger.debug("extracting attribute", member=member)
 
-        if inspect.isclass(member.obj):
-            value = member.obj.__name__
-        else:
-            value = str(member.obj)
-
         yield Attribute(
             name=member.name,
             object=member.obj,
             defining_class=member.cls.__name__,
-            value=value,
+            value=member.obj,
         )
 
 
