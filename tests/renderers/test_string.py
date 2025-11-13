@@ -12,17 +12,15 @@ class MyClass:
     ("attr", "expected"),
     [
         (
-            Attribute(name="my_var", object="", defining_class="MyClass", value="test"),
+            Attribute(name="my_var", defining_class="MyClass", value="test"),
             'my_var = "test"\n',
         ),
         (
-            Attribute(
-                name="my_var", object="", defining_class="MyClass", value=MyClass
-            ),
+            Attribute(name="my_var", defining_class="MyClass", value=MyClass),
             "my_var = MyClass\n",
         ),
         (
-            Attribute(name="my_var", object="", defining_class="MyClass", value=7),
+            Attribute(name="my_var", defining_class="MyClass", value=7),
             "my_var = 7\n",
         ),
     ],

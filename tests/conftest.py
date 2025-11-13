@@ -13,7 +13,6 @@ def inner_class(name):
             "abc": [
                 Attribute(
                     name="abc",
-                    object="123",
                     defining_class=name,
                     value="123",
                 )

@@ -30,7 +30,6 @@ Kind = Literal[
 @frozen
 class Attribute:
     name: str
-    object: str
     defining_class: str
     value: Any
 
@@ -79,7 +78,6 @@ def build_attributes(members: list[Member]) -> Generator[Attribute, None, None]:
 
         yield Attribute(
             name=member.name,
-            object=member.obj,
             defining_class=member.cls.__name__,
             value=member.obj,
         )
