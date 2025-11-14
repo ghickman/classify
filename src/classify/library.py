@@ -37,6 +37,7 @@ class Attribute:
 @frozen
 class Class:
     name: str
+    module: str
     docstring: str
     ancestors: list[str]
     parents: list[str]
@@ -152,6 +153,7 @@ def classify[C](obj: type[C]) -> Class:
 
     return Class(
         name=obj.__name__,
+        module=obj.__module__,
         docstring=pydoc.getdoc(obj),
         ancestors=[k.__name__ for k in mro[:-1]],
         parents=get_parents(obj),

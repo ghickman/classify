@@ -6,6 +6,7 @@ from classify.library import Attribute, Class, Line, Method
 def inner_class(name):
     return Class(
         name=name,
+        module="",
         docstring="",
         ancestors=[name],
         parents=[],
@@ -38,6 +39,7 @@ def method(name, **kwargs):
 def dummy_class():
     return Class(
         name="MyClass",
+        module="",
         docstring="",
         ancestors=[],
         parents=["ParentClass"],
