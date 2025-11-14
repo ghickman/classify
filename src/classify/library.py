@@ -30,7 +30,7 @@ Kind = Literal[
 @frozen
 class Attribute:
     name: str
-    defining_class: str
+    defining_class: "SimpleClass"
     value: Any
 
 
@@ -45,6 +45,19 @@ class Class:
     classes: list["Class"]
     methods: dict[str, list["Method"]]
     properties: list = Factory(list)
+
+
+@frozen
+class SimpleClass:
+    name: str
+    module: str
+
+    @staticmethod
+    def from_class(klass):
+        return SimpleClass(
+            name=klass.__name__,
+            module=klass.__module__,
+        )
 
 
 @frozen
@@ -65,7 +78,7 @@ class Member[C]:
 class Method:
     name: str
     docstring: str
-    defining_class: str
+    defining_class: SimpleClass
     arguments: str
     code: str
     lines: Line
@@ -79,7 +92,7 @@ def build_attributes(members: list[Member]) -> Generator[Attribute, None, None]:
 
         yield Attribute(
             name=member.name,
-            defining_class=member.cls.__name__,
+            defining_class=SimpleClass.from_class(member.cls),
             value=member.obj,
         )
 
@@ -111,7 +124,7 @@ def build_methods(members: list[Member]) -> Generator[Method, None, None]:
         yield Method(
             name=member.name,
             docstring=pydoc.getdoc(member.obj),
-            defining_class=member.cls.__name__,
+            defining_class=SimpleClass.from_class(member.cls),
             arguments=arguments,
             code="".join(lines),
             lines=Line(start=start_line, total=len(lines)),
@@ -151,11 +164,13 @@ def classify[C](obj: type[C]) -> Class:
         for method in build_methods(instance_methods):
             methods[method.name].append(method)
 
+    ancestors = [SimpleClass.from_class(c) for c in mro[:-1]]
+
     return Class(
         name=obj.__name__,
         module=obj.__module__,
         docstring=pydoc.getdoc(obj),
-        ancestors=[k.__name__ for k in mro[:-1]],
+        ancestors=ancestors,
         parents=get_parents(obj),
         attributes=dict(sorted(attributes.items())),
         classes=sorted(classes),

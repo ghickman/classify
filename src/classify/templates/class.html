@@ -31,7 +31,7 @@
                 {{ name }} = {{ attribute.value|attribute }}
               </code>
             </td>
-            <td>{{ attribute.defining_class }}</td>
+            <td>{{ attribute.defining_class.name }}.{{ attribute.defining_class.name }}</td>
           </tr>
         {% endfor %}
       {% endfor %}
@@ -55,7 +55,7 @@
   {% for name, declarations in klass.methods.items() %}
     {% for declaration in declarations %}
       <div class="method">
-        <h3>def {{ name }}{{ declaration.arguments }}: [{{ declaration.defining_class }}]</h3>
+        <h3>def {{ name }}{{ declaration.arguments }}: [{{ declaration.defining_class.name }}]</h3>
         <p>{{ declaration.docstring|e }}</p>
         <p>Found on lines {{ declaration.lines.start }} to {{ declaration.lines.start+declaration.lines.total }} of {{ declaration.file }}</p>
         <pre>{{ declaration.code }}</pre>

@@ -1,6 +1,6 @@
 import pytest
 
-from classify.library import Attribute, Class, Line, Method
+from classify.library import Attribute, Class, Line, Method, SimpleClass
 
 
 def inner_class(name):
@@ -14,7 +14,7 @@ def inner_class(name):
             "abc": [
                 Attribute(
                     name="abc",
-                    defining_class=name,
+                    defining_class=SimpleClass(name=name, module=""),
                     value="123",
                 )
             ]
@@ -25,10 +25,12 @@ def inner_class(name):
 
 
 def method(name, **kwargs):
+    defining_class = SimpleClass(name=kwargs.get("defining_class", ""), module="")
+
     return Method(
         name=name,
         docstring=kwargs.get("docstring", ""),
-        defining_class=kwargs.get("defining_class", ""),
+        defining_class=defining_class,
         arguments=kwargs.get("arguments", ""),
         code=kwargs.get("code", ""),
         lines=Line(start=42, total=7),
@@ -49,8 +51,10 @@ def dummy_class():
         ],
         methods={
             "one": [
-                method("one", defining_class="ParentClass"),
-                method("one", defining_class="MyClass"),
+                method(
+                    "one", defining_class=SimpleClass(name="ParentClass", module="")
+                ),
+                method("one", defining_class=SimpleClass(name="MyClass", module="")),
             ]
         },
     )

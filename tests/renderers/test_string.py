@@ -1,6 +1,6 @@
 import pytest
 
-from classify.library import Attribute
+from classify.library import Attribute, SimpleClass
 from classify.renderers.string import attributes, docstring
 
 
@@ -12,15 +12,27 @@ class MyClass:
     ("attr", "expected"),
     [
         (
-            Attribute(name="my_var", defining_class="MyClass", value="test"),
+            Attribute(
+                name="my_var",
+                defining_class=SimpleClass(name="MyClass", module=""),
+                value="test",
+            ),
             'my_var = "test"\n',
         ),
         (
-            Attribute(name="my_var", defining_class="MyClass", value=MyClass),
+            Attribute(
+                name="my_var",
+                defining_class=SimpleClass(name="MyClass", module=""),
+                value=MyClass,
+            ),
             "my_var = MyClass\n",
         ),
         (
-            Attribute(name="my_var", defining_class="MyClass", value=7),
+            Attribute(
+                name="my_var",
+                defining_class=SimpleClass(name="MyClass", module=""),
+                value=7,
+            ),
             "my_var = 7\n",
         ),
     ],

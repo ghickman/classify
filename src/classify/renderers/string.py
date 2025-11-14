@@ -54,7 +54,7 @@ def methods(methods: dict[str, list[Method]], indent) -> str:
     for definitions in methods.values():
         for i, method in enumerate(definitions):
             if len(definitions) > 1 and i == 0:
-                content += f"{indent}# Defined on: {method.defining_class}\n"
+                content += f"{indent}# Defined on: {method.defining_class.name}\n"
             lines = method.code.split("\n")[:-1]
             for line in lines:
                 # TODO: dedent code at source so defined indent isn't tied to
