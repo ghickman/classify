@@ -7,7 +7,7 @@ from collections.abc import Generator
 from typing import Any, Literal, TypeVar
 
 import structlog
-from attrs import Factory, frozen
+from attrs import frozen
 
 from .exceptions import NotAClassError
 
@@ -43,8 +43,8 @@ class Class:
     parents: list[str]
     attributes: dict[str, list[Attribute]]
     classes: list["Class"]
+    properties: dict[str, list["Method"]]
     methods: dict[str, list["Method"]]
-    properties: list = Factory(list)
 
 
 @frozen
@@ -132,6 +132,17 @@ def build_methods(members: list[Member]) -> Generator[Method, None, None]:
         )
 
 
+def build_properties(members: list[Member]) -> Generator[Method, None, None]:
+    for member in members:
+        log = logger.bind(member=member)
+        log.debug("extracting property")
+
+        # properties are a data descriptor with only a getter set, so we want
+        # to get the details of that object, which becomes "just" a Method at
+        # that point
+        yield from build_methods([func_to_member(member.obj.fget, member.cls)])
+
+
 def classify[C](obj: type[C]) -> Class:
     # flatten the MRO of the given class and flip the order so it's the first
     # non-object class first
@@ -142,6 +153,7 @@ def classify[C](obj: type[C]) -> Class:
     attributes = collections.defaultdict(list)
     classes = []
     methods = collections.defaultdict(list)
+    properties = collections.defaultdict(list)
 
     structlog.contextvars.clear_contextvars()
     for cls in mro:
@@ -164,6 +176,15 @@ def classify[C](obj: type[C]) -> Class:
         for method in build_methods(instance_methods):
             methods[method.name].append(method)
 
+        ## PROPERTIES
+        # TODO: try extracting all filters to a filters.py, converting
+        # build_foos() to Type.from_member and converting loops to:
+        # for member in [m for m in members if is_property(m)]:
+        #     properties[member.name].append(Property.from_member(member))
+        props = [m for m in members if m.kind == "readonly property"]
+        for prop in build_properties(props):
+            properties[prop.name].append(prop)
+
     ancestors = [SimpleClass.from_class(c) for c in mro[:-1]]
 
     return Class(
@@ -174,7 +195,17 @@ def classify[C](obj: type[C]) -> Class:
         parents=get_parents(obj),
         attributes=dict(sorted(attributes.items())),
         classes=sorted(classes),
+        properties=dict(sorted(properties.items())),
         methods=dict(sorted(methods.items())),
+    )
+
+
+def func_to_member(f, cls) -> Member:
+    return Member(
+        name=f.__name__,
+        kind="method",
+        cls=cls,
+        obj=f,
     )
 
 

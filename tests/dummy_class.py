@@ -49,7 +49,7 @@ class DummyClass(DummyParent):
 
     # TODO: support rendering properties as methods
     @property
-    def my_property(self):
+    def my_prop(self):
         pass
 
     @functools.cached_property

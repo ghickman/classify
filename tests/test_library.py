@@ -21,7 +21,7 @@ from .dummy_class import DummyClass, DummyParent
                 "my_class",
                 "my_dj_cached_prop",
                 "my_int",
-                "my_property",
+                "my_prop",
                 "my_string",
                 "one",
                 "static_method",

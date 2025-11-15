@@ -67,6 +67,22 @@ def methods(methods: dict[str, list[Method]], indent) -> str:
     return content.strip("\n")
 
 
+def properties(properties: dict[str, list[Method]], indent) -> str:
+    content = ""
+    for definitions in properties.values():
+        for i, prop in enumerate(definitions):
+            if len(definitions) > 1 and i == 0:
+                content += f"{indent}# Defined on: {prop.defining_class.name}\n"
+            lines = prop.code.split("\n")[:-1]
+            for line in lines:
+                # TODO: dedent code at source so defined indent isn't tied to
+                # presentation indent
+                content += f"{indent}{line[4:]}\n"
+            content += "\n"
+
+    return content
+
+
 def to_string(structure: Class, indent: str = " " * DEFAULT_INDENT_WIDTH) -> str:
     content = declaration(structure.name, structure.parents, indent)
     content += "\n"
@@ -74,6 +90,7 @@ def to_string(structure: Class, indent: str = " " * DEFAULT_INDENT_WIDTH) -> str
     content += attributes(structure.attributes, indent)
     content += "\n"
     content += classes(structure.classes, indent)
+    content += properties(structure.properties, indent)
     content += methods(structure.methods, indent)
 
     return content
