@@ -8,7 +8,17 @@ from .dummy_class import DummyClass, DummyParent
 @pytest.mark.parametrize(
     ("cls", "expected"),
     [
-        (DummyParent, ["__dict__", "__weakref__", "one", "three"]),
+        (
+            DummyParent,
+            [
+                "__dict__",
+                "__weakref__",
+                "my_data_descriptor",
+                "my_prop",
+                "one",
+                "three",
+            ],
+        ),
         (
             DummyClass,
             [
@@ -19,6 +29,7 @@ from .dummy_class import DummyClass, DummyParent
                 "four",
                 "my_cached_prop",
                 "my_class",
+                "my_data_descriptor",
                 "my_dj_cached_prop",
                 "my_int",
                 "my_prop",

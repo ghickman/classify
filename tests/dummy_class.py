@@ -19,6 +19,22 @@ class DummyParent:
     def three(self):
         pass
 
+    @property
+    def my_prop(self):
+        pass
+
+    @property
+    def my_data_descriptor(self):
+        pass
+
+    @my_data_descriptor.setter
+    def my_data_descriptor(self):
+        pass
+
+    @my_data_descriptor.deleter
+    def my_data_descriptor(self):
+        pass
+
 
 class DummyClass(DummyParent):
     """The main testing class"""
@@ -50,6 +66,18 @@ class DummyClass(DummyParent):
     # TODO: support rendering properties as methods
     @property
     def my_prop(self):
+        pass
+
+    @property
+    def my_data_descriptor(self):
+        pass
+
+    @my_data_descriptor.setter
+    def my_data_descriptor(self):
+        pass
+
+    @my_data_descriptor.deleter
+    def my_data_descriptor(self):
         pass
 
     @functools.cached_property

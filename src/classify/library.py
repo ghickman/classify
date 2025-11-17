@@ -44,7 +44,16 @@ class Class:
     attributes: dict[str, list[Attribute]]
     classes: list["Class"]
     properties: dict[str, list["Method"]]
+    data_descriptors: dict[str, list["DataDescriptor"]]
     methods: dict[str, list["Method"]]
+
+
+@frozen
+class DataDescriptor:
+    name: str
+    getter: "Method | None"
+    setter: "Method | None"
+    deleter: "Method | None"
 
 
 @frozen
@@ -94,6 +103,24 @@ def build_attributes(members: list[Member]) -> Generator[Attribute, None, None]:
             name=member.name,
             defining_class=SimpleClass.from_class(member.cls),
             value=member.obj,
+        )
+
+
+def build_data_descriptors(
+    members: list[Member],
+) -> Generator[DataDescriptor, None, None]:
+    for member in members:
+        log = logger.bind(member=member)
+        log.debug("extracting data descriptor")
+
+        # properties are have fget, fset, and fdel objects that are themselves
+        # methods, can I pass those methods to build methods?
+        getter = next(build_methods([func_to_member(member.obj.fget, member.cls)]))
+        setter = next(build_methods([func_to_member(member.obj.fset, member.cls)]))
+        deleter = next(build_methods([func_to_member(member.obj.fdel, member.cls)]))
+
+        yield DataDescriptor(
+            name=member.name, getter=getter, setter=setter, deleter=deleter
         )
 
 
@@ -152,6 +179,7 @@ def classify[C](obj: type[C]) -> Class:
     # more than one class in the MRO
     attributes = collections.defaultdict(list)
     classes = []
+    data_descriptors = collections.defaultdict(list)
     methods = collections.defaultdict(list)
     properties = collections.defaultdict(list)
 
@@ -185,6 +213,17 @@ def classify[C](obj: type[C]) -> Class:
         for prop in build_properties(props):
             properties[prop.name].append(prop)
 
+        ## DATA DESCRIPTORS
+        descriptors = [
+            m
+            for m in members
+            if m.kind == "data descriptor"
+            and not inspect.isgetsetdescriptor(m.obj)
+            and not inspect.ismemberdescriptor(m.obj)
+        ]
+        for descriptor in build_data_descriptors(descriptors):
+            data_descriptors[descriptor.name].append(descriptor)
+
     ancestors = [SimpleClass.from_class(c) for c in mro[:-1]]
 
     return Class(
@@ -196,6 +235,7 @@ def classify[C](obj: type[C]) -> Class:
         attributes=dict(sorted(attributes.items())),
         classes=sorted(classes),
         properties=dict(sorted(properties.items())),
+        data_descriptors=dict(sorted(data_descriptors.items())),
         methods=dict(sorted(methods.items())),
     )
 

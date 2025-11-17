@@ -21,6 +21,7 @@ def inner_class(name):
         },
         classes=[],
         properties={},
+        data_descriptors={},
         methods={},
     )
 
@@ -51,6 +52,7 @@ def dummy_class():
             inner_class("Meta"),
         ],
         properties={},
+        data_descriptors={},
         methods={
             "one": [
                 method(

@@ -1,6 +1,6 @@
 import inspect
 
-from ..library import Class, Method
+from ..library import Class, DataDescriptor, Method
 
 
 # define this here so we know what "1" indent is and can remove it for inner
@@ -83,6 +83,31 @@ def properties(properties: dict[str, list[Method]], indent) -> str:
     return content
 
 
+def data_descriptors(data_descriptors: dict[str, list[DataDescriptor]], indent) -> str:
+    """
+    KISS to start: display any methods for a dd as a group
+    Loop the definitions of each name
+    try each of getter, setter, and deleter, outputting them as a method
+    """
+    content = ""
+    for definitions in data_descriptors.values():
+        for i, descriptor in enumerate(definitions):
+            for name in ["getter", "setter", "deleter"]:
+                func = getattr(descriptor, name)
+
+                if len(definitions) > 1 and i == 0:
+                    content += f"{indent}# Defined on: {func.defining_class.name}\n"
+
+                lines = func.code.split("\n")[:-1]
+                for line in lines:
+                    # TODO: dedent code at source so defined indent isn't tied
+                    # to presentation indent
+                    content += f"{indent}{line[4:]}\n"
+                content += "\n"
+
+    return content
+
+
 def to_string(structure: Class, indent: str = " " * DEFAULT_INDENT_WIDTH) -> str:
     content = declaration(structure.name, structure.parents, indent)
     content += "\n"
@@ -91,6 +116,7 @@ def to_string(structure: Class, indent: str = " " * DEFAULT_INDENT_WIDTH) -> str
     content += "\n"
     content += classes(structure.classes, indent)
     content += properties(structure.properties, indent)
+    content += data_descriptors(structure.data_descriptors, indent)
     content += methods(structure.methods, indent)
 
     return content
