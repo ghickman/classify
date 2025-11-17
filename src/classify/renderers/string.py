@@ -1,6 +1,6 @@
 import inspect
 
-from ..library import Class, DataDescriptor, Method
+from ..dataclasses import Class, DataDescriptor, Method
 
 
 # define this here so we know what "1" indent is and can remove it for inner

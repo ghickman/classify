@@ -1,6 +1,6 @@
 import pytest
 
-from classify.library import get_members
+from classify.classification import get_members
 
 from .dummy_class import DummyClass, DummyParent
 

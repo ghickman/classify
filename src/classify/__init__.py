@@ -1,4 +1,6 @@
-from .library import NotAClassError, classify, resolve
+from .classification import classify
+from .exceptions import NotAClassError
+from .resolution import resolve
 
 
 __all__ = [

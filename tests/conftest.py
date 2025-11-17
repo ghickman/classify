@@ -1,6 +1,6 @@
 import pytest
 
-from classify.library import Attribute, Class, Line, Method, SimpleClass
+from classify.dataclasses import Attribute, Class, Line, Method, SimpleClass
 
 
 def inner_class(name):

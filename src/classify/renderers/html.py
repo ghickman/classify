@@ -9,7 +9,7 @@ from collections.abc import Generator
 from http.server import SimpleHTTPRequestHandler
 from pathlib import Path
 
-from ..library import Class
+from ..dataclasses import Class
 
 
 class Handler(SimpleHTTPRequestHandler):  # pragma: no cover

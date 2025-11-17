@@ -1,6 +1,6 @@
 import pytest
 
-from classify.library import Attribute, SimpleClass
+from classify.dataclasses import Attribute, SimpleClass
 from classify.renderers.string import attributes, docstring
 
 

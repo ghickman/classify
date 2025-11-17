@@ -8,10 +8,11 @@ import structlog
 from rich.syntax import DEFAULT_THEME
 
 from . import renderers
+from .classification import classify
 from .django import setup_django
 from .exceptions import NotAClassError
-from .library import classify, resolve
 from .renderers import Renderer
+from .resolution import resolve
 
 
 @click.command()
