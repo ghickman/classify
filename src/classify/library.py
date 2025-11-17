@@ -3,8 +3,7 @@ import collections
 import inspect
 import pydoc
 import sys
-from collections.abc import Generator
-from typing import Any, Literal, TypeVar
+from typing import Any, Literal, Self, TypeVar
 
 import structlog
 from attrs import frozen
@@ -33,6 +32,15 @@ class Attribute:
     defining_class: "SimpleClass"
     value: Any
 
+    @classmethod
+    def from_member(cls, member: "Member") -> Self:
+        logger.debug("extracting attribute", member=member)
+        return cls(
+            name=member.name,
+            defining_class=SimpleClass.from_class(member.cls),
+            value=member.obj,
+        )
+
 
 @frozen
 class Class:
@@ -54,6 +62,18 @@ class DataDescriptor:
     getter: "Method | None"
     setter: "Method | None"
     deleter: "Method | None"
+
+    @classmethod
+    def from_member(cls, member: "Member") -> Self:
+        logger.debug("extracting data descriptor")
+
+        # properties are have fget, fset, and fdel objects that are themselves
+        # methods, can I pass those methods to build methods?
+        getter = Method.from_member(func_to_member(member.obj.fget, member.cls))
+        setter = Method.from_member(func_to_member(member.obj.fset, member.cls))
+        deleter = Method.from_member(func_to_member(member.obj.fdel, member.cls))
+
+        return cls(name=member.name, getter=getter, setter=setter, deleter=deleter)
 
 
 @frozen
@@ -93,42 +113,9 @@ class Method:
     lines: Line
     file: str | None = None
 
-
-def build_attributes(members: list[Member]) -> Generator[Attribute, None, None]:
-    """Build the Attribute list for the given Members"""
-    for member in members:
-        logger.debug("extracting attribute", member=member)
-
-        yield Attribute(
-            name=member.name,
-            defining_class=SimpleClass.from_class(member.cls),
-            value=member.obj,
-        )
-
-
-def build_data_descriptors(
-    members: list[Member],
-) -> Generator[DataDescriptor, None, None]:
-    for member in members:
-        log = logger.bind(member=member)
-        log.debug("extracting data descriptor")
-
-        # properties are have fget, fset, and fdel objects that are themselves
-        # methods, can I pass those methods to build methods?
-        getter = next(build_methods([func_to_member(member.obj.fget, member.cls)]))
-        setter = next(build_methods([func_to_member(member.obj.fset, member.cls)]))
-        deleter = next(build_methods([func_to_member(member.obj.fdel, member.cls)]))
-
-        yield DataDescriptor(
-            name=member.name, getter=getter, setter=setter, deleter=deleter
-        )
-
-
-def build_methods(members: list[Member]) -> Generator[Method, None, None]:
-    """Build the Method list for the given Members"""
-    for member in members:
-        log = logger.bind(member=member)
-        log.debug("extracting method")
+    @classmethod
+    def from_member(cls, member: "Member") -> Self:
+        logger.debug("extracting method")
         func = member.obj
 
         # get target of cached property decorators
@@ -148,7 +135,7 @@ def build_methods(members: list[Member]) -> Generator[Method, None, None]:
 
         file = inspect.getsourcefile(func)
 
-        yield Method(
+        return cls(
             name=member.name,
             docstring=pydoc.getdoc(member.obj),
             defining_class=SimpleClass.from_class(member.cls),
@@ -157,17 +144,6 @@ def build_methods(members: list[Member]) -> Generator[Method, None, None]:
             lines=Line(start=start_line, total=len(lines)),
             file=file,
         )
-
-
-def build_properties(members: list[Member]) -> Generator[Method, None, None]:
-    for member in members:
-        log = logger.bind(member=member)
-        log.debug("extracting property")
-
-        # properties are a data descriptor with only a getter set, so we want
-        # to get the details of that object, which becomes "just" a Method at
-        # that point
-        yield from build_methods([func_to_member(member.obj.fget, member.cls)])
 
 
 def classify[C](obj: type[C]) -> Class:
@@ -190,8 +166,9 @@ def classify[C](obj: type[C]) -> Class:
 
         ## ATTRIBUTES
         class_attrs = [m for m in members if m.kind == "data" and not is_inner_class(m)]
-        for attribute in build_attributes(class_attrs):
-            attributes[attribute.name].append(attribute)
+        for member in class_attrs:
+            structlog.contextvars.bind_contextvars(member=member)
+            attributes[member.name].append(Attribute.from_member(member))
 
         ## CLASSES
         inner_classes = [m for m in members if m.kind == "data" and is_inner_class(m)]
@@ -201,17 +178,16 @@ def classify[C](obj: type[C]) -> Class:
         instance_methods = [
             m for m in members if m.kind in ["method", "class method", "static method"]
         ]
-        for method in build_methods(instance_methods):
-            methods[method.name].append(method)
+        for member in instance_methods:
+            structlog.contextvars.bind_contextvars(member=member)
+            methods[member.name].append(Method.from_member(member))
 
         ## PROPERTIES
-        # TODO: try extracting all filters to a filters.py, converting
-        # build_foos() to Type.from_member and converting loops to:
-        # for member in [m for m in members if is_property(m)]:
-        #     properties[member.name].append(Property.from_member(member))
         props = [m for m in members if m.kind == "readonly property"]
-        for prop in build_properties(props):
-            properties[prop.name].append(prop)
+        for member in props:
+            logger.debug("extracting property", member=member)
+            prop = Method.from_member(func_to_member(member.obj.fget, member.cls))
+            properties[member.name].append(prop)
 
         ## DATA DESCRIPTORS
         descriptors = [
@@ -221,8 +197,9 @@ def classify[C](obj: type[C]) -> Class:
             and not inspect.isgetsetdescriptor(m.obj)
             and not inspect.ismemberdescriptor(m.obj)
         ]
-        for descriptor in build_data_descriptors(descriptors):
-            data_descriptors[descriptor.name].append(descriptor)
+        for member in descriptors:
+            structlog.contextvars.bind_contextvars(member=member)
+            data_descriptors[member.name].append(DataDescriptor.from_member(member))
 
     ancestors = [SimpleClass.from_class(c) for c in mro[:-1]]
 
