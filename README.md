@@ -23,7 +23,7 @@ To change this specify a relative location with the `--output` option.
 You can serve the output, regardless of where its written to with `--serve`, and change the port with `--port`.
 
 ```bash
-    classify <path.to.Class> --renderer html --output output --port 8080
+    classify <path.to.Class> --renderer html --output output --serve --port 8080
 ```
 
 
