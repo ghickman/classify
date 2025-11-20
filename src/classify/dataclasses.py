@@ -63,8 +63,13 @@ class DataDescriptor:
         # properties are have fget, fset, and fdel objects that are themselves
         # methods, can I pass those methods to build methods?
         getter = Method.from_func(member.obj.fget, member.cls)
-        setter = Method.from_func(member.obj.fset, member.cls)
-        deleter = Method.from_func(member.obj.fdel, member.cls)
+
+        setter = (
+            Method.from_func(member.obj.fset, member.cls) if member.obj.fset else None
+        )
+        deleter = (
+            Method.from_func(member.obj.fdel, member.cls) if member.obj.fdel else None
+        )
 
         return cls(name=member.name, getter=getter, setter=setter, deleter=deleter)
 
