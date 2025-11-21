@@ -74,7 +74,7 @@ def classify[C](obj: type[C]) -> Class:
         ancestors=ancestors,
         parents=get_parents(obj),
         attributes=dict(sorted(attributes.items())),
-        classes=sorted(classes),
+        classes=sorted(classes, key=lambda c: c.name),
         properties=dict(sorted(properties.items())),
         data_descriptors=dict(sorted(data_descriptors.items())),
         methods=dict(sorted(methods.items())),
