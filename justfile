@@ -1,3 +1,7 @@
+# list available commands
+default:
+    @{{ just_executable() }} --list
+
 format *args:
     uv run ruff format {{ args }}
 
@@ -41,3 +45,16 @@ test *args="":
 
 e2e *args="--console-theme dracula":
     classify tests.dummy_class.DummyClass --django-settings classify.contrib.django.settings {{ args }}
+
+find-classes path settings="":
+    #!/bin/bash
+    set -u
+
+    class_paths=$(scripts/classes.py {{ path }} --django-settings {{ settings }})
+    while read path; do
+        classify --django-settings {{ settings }} "$path" > /dev/null 2>&1
+        if [ $? -ne 0 ]; then
+            echo $path
+            continue
+        fi
+    done <<< "$class_paths"
