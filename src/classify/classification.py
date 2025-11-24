@@ -92,13 +92,8 @@ def get_members(obj) -> list[Member]:
      - object
     """
     members = [
-        Member(
-            name=m[0],
-            kind=m[1],
-            cls=m[2],
-            obj=m[3],
-        )
-        for m in pydoc.classify_class_attrs(obj)
+        Member(name=name, kind=kind, cls=cls, obj=obj)
+        for name, kind, cls, obj in pydoc.classify_class_attrs(obj)
     ]
     # filter down to non-private items and those defined on the given object
     return [
