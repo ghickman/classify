@@ -24,15 +24,15 @@ class DummyParent:
         pass
 
     @property
-    def my_data_descriptor(self):
+    def my_data_descriptor(self) -> None:
         pass
 
     @my_data_descriptor.setter
-    def my_data_descriptor(self):
+    def my_data_descriptor(self, value) -> None:
         pass
 
     @my_data_descriptor.deleter
-    def my_data_descriptor(self):
+    def my_data_descriptor(self) -> None:
         pass
 
 
@@ -73,11 +73,11 @@ class DummyClass(DummyParent):
         pass
 
     @my_data_descriptor.setter
-    def my_data_descriptor(self):
+    def my_data_descriptor(self, value) -> None:
         pass
 
     @my_data_descriptor.deleter
-    def my_data_descriptor(self):
+    def my_data_descriptor(self) -> None:
         pass
 
     @functools.cached_property
