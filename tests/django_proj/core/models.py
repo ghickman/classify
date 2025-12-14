@@ -1,4 +1,9 @@
+from django import forms
 from django.db import models
+
+
+class DummyForm(forms.Form):
+    name = forms.TextInput()
 
 
 class DummyModel(models.Model):

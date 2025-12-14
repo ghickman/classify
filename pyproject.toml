@@ -66,6 +66,7 @@ omit = [
   "src/classify/__main__.py",
   "src/classify/contrib/*",
   "src/classify/django.py",
+  "tests/django_proj/*",
   "tests/dummy_class.py",
 ]
 source = ["src", "tests"]
