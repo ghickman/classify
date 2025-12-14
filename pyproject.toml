@@ -23,7 +23,9 @@ classifiers = [
 dependencies = [
   "attrs>=25.4.0",
   "click>=8.3.0",
+  "django-proj",
   "jinja2>=2.7",
+  "pretalx",
   "rich>=14.2.0",
   "structlog>=25.5.0",
 ]
@@ -124,3 +126,13 @@ sort_first = [
 
 [tool.ty.src]
 include = ["src", "tests"]
+
+[tool.uv.workspace]
+members = [
+    "projects/pretalx",
+    "projects/django_proj",
+]
+
+[tool.uv.sources]
+pretalx = { workspace = true }
+django-proj = { workspace = true }

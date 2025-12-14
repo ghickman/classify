@@ -36,6 +36,10 @@ def classify[C](obj: type[C]) -> Class:
         structlog.contextvars.bind_contextvars(**{"class": cls.__name__})
         members = list(get_members(cls))
 
+        if cls.__name__ == "TimeStampedModel":
+            member = [m for m in members if m.name == "created"][0]
+            breakpoint()
+
         ## ATTRIBUTES
         class_attrs = [m for m in members if is_attribute(m)]
         for member in class_attrs:

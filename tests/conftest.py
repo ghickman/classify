@@ -1,6 +1,15 @@
+import contextlib
+
 import pytest
 
 from classify.dataclasses import Attribute, Class, Line, Method, SimpleClass
+from classify.django import setup_django
+
+
+@pytest.fixture
+def setup_dj():
+    with contextlib.suppress(RuntimeError):
+        setup_django("tests.django_proj.core.settings")
 
 
 def inner_class(name):
