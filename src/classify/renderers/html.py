@@ -60,9 +60,15 @@ def to_html(structure: Class, output_path: Path | None, serve: bool, port: int) 
 
     env = Environment(loader=PackageLoader("classify", "templates"))
     env.filters["attribute"] = attribute_value
+
+    template = env.get_template("main.css")
+    output = template.render()
+    with resolve_path(output_path) as path:
+        full_path = path / "main.css"
+        full_path.write_text(output)
+
     template = env.get_template("web.html")
     output = template.render(klass=structure)
-
     with resolve_path(output_path) as path:
         full_path = path / "classify.html"
         full_path.write_text(output)
