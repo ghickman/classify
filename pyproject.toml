@@ -37,7 +37,6 @@ Changelog = "https://github.com/ghickman/classify/blob/main/CHANGELOG.md"
 
 [dependency-groups]
 dev = [
-  "black>=25.9.0,<26",
   "coverage>=7.11.0",
   "django>=5.2.7",
   "httpx>=0.28.1",

@@ -1,7 +1,7 @@
-black *args="":
-    uv run black --check src tests {{ args }}
+format *args:
+    uv run ruff format {{ args }}
 
-ruff *args="":
+lint *args:
     uv run ruff check {{ args }}
 
 toml-sort *args:
@@ -10,12 +10,15 @@ toml-sort *args:
 type-check *args:
     uv run ty check
 
-check: black ruff type-check
+check:
+    {{ just_executable() }} format --check
+    {{ just_executable() }} lint
     {{ just_executable() }} toml-sort --check
+    {{ just_executable() }} type-check
 
 fix:
-    uv run black src tests
-    uv run ruff check --fix src tests
+    {{ just_executable() }} format
+    {{ just_executable() }} lint --fix
     {{ just_executable() }} toml-sort --in-place
 
 release:
