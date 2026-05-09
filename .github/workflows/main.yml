@@ -3,9 +3,15 @@ name: CI
 permissions: {}
 
 on:
+  pull_request:
   push:
     branches: ["main"]
   workflow_dispatch:
+
+# Only allow one instance of this workflow for each PR
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
 
 jobs:
   check:
