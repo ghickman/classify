@@ -28,7 +28,17 @@ def is_inner_class(member: Member) -> bool:
 
 
 def is_method(member: Member) -> bool:
-    return member.kind in ["method", "class method", "static method"]
+    return (
+        member.kind
+        in [
+            "method",
+            "class method",
+            "static method",
+        ]
+        and not inspect.ismethoddescriptor(member.obj)
+        and not inspect.isgetsetdescriptor(member.obj)
+        and not inspect.isbuiltin(member.obj)
+    )
 
 
 def is_property(member: Member) -> bool:
