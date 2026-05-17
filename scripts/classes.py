@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import ast
+import importlib
 import itertools
 import os
 from collections.abc import Iterator
@@ -30,12 +31,9 @@ class ClassFinder(ast.NodeVisitor):
         self._in_class = False
 
 
-def dotted_path(path: Path, root: Path) -> str:
-    """Convert a file path to a dotted module path."""
-    try:
-        rel_path = path.relative_to(root)
-    except ValueError:
-        return ""
+def dotted_path(path: Path, root: Path, prefix: str) -> str:
+    """Convert a file path to a dotted module path rooted at `prefix`."""
+    rel_path = path.relative_to(root)
 
     parts = list(rel_path.parts)
     if parts[-1] == "__init__.py":
@@ -43,10 +41,11 @@ def dotted_path(path: Path, root: Path) -> str:
     elif parts[-1].endswith(".py"):
         parts[-1] = parts[-1][:-3]
 
-    return ".".join(parts)
+    suffix = ".".join(parts)
+    return f"{prefix}.{suffix}" if suffix else prefix
 
 
-def iter_classes(path: Path, root: Path) -> Iterator[str]:
+def iter_classes(path: Path, root: Path, prefix: str) -> Iterator[str]:
     """Parse a Python file and extract all class definitions."""
     try:
         source = path.read_text(encoding="utf-8")
@@ -55,7 +54,7 @@ def iter_classes(path: Path, root: Path) -> Iterator[str]:
         click.echo(f"Warning: Could not parse {path}: {e}", err=True)
         return []
 
-    module_path = dotted_path(path, root)
+    module_path = dotted_path(path, root, prefix)
     finder = ClassFinder(str(path), module_path)
     finder.visit(tree)
     yield from finder.classes
@@ -64,22 +63,27 @@ def iter_classes(path: Path, root: Path) -> Iterator[str]:
 def iter_files(root: Path) -> Iterator[Path]:
     """Recursively find all Python files in a directory."""
     for path in root.rglob("*.py"):
-        if not any(part.startswith(".") for part in path.parts):
+        if not any(part.startswith(".") for part in path.relative_to(root).parts):
             yield path
 
 
 @click.command()
-@click.argument("path", type=click.Path(exists=True, file_okay=False, path_type=Path))
+@click.argument("package")
 @click.option("--django-settings")
-def cli(path, django_settings):
+def cli(package, django_settings):
     if django_settings:
         os.environ["DJANGO_SETTINGS_MODULE"] = django_settings
         django.setup()
 
-    # find all modules
-    files = iter_files(path)
+    module = importlib.import_module(package)
+    package_path = Path(module.__path__[0])
 
-    classes = list(itertools.chain.from_iterable(iter_classes(f, path) for f in files))
+    files = iter_files(package_path)
+    classes = list(
+        itertools.chain.from_iterable(
+            iter_classes(f, package_path, package) for f in files
+        )
+    )
     for cls_path in classes:
         click.echo(cls_path)
 
