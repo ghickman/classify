@@ -46,11 +46,11 @@ test *args="":
 e2e *args="--console-theme dracula":
     classify tests.dummy_class.DummyClass --django-settings classify.contrib.django.settings {{ args }}
 
-find-classes path settings="":
+find-classes package settings="":
     #!/bin/bash
     set -u
 
-    class_paths=$(scripts/classes.py {{ path }} --django-settings {{ settings }})
+    class_paths=$(scripts/classes.py {{ package }} --django-settings {{ settings }})
     while read path; do
         classify --django-settings {{ settings }} "$path" > /dev/null 2>&1
         if [ $? -ne 0 ]; then
@@ -58,3 +58,11 @@ find-classes path settings="":
             continue
         fi
     done <<< "$class_paths"
+
+find-failures package *args="":
+    #!/bin/bash
+    set -euo pipefail
+
+    uv add {{ package }}
+    uv run scripts/classes.py {{ package }} {{ args }} | uv run scripts/collate_failures.py --output=failures-{{ package }}.md {{ args }}
+    uv remove {{ package }}
