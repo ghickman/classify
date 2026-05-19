@@ -66,11 +66,9 @@ class DataDescriptor:
             else None
         )
 
-        setter = (
-            Method.from_func(member.obj.fset, member.cls)
-            if hasattr(member.obj, "fset")
-            else None
-        )
+        setter = None
+        if fset := getattr(member.obj, "fset", None):
+            setter = Method.from_func(fset, member.cls)
 
         # property() creates an fdel with the value `None`
         deleter = None

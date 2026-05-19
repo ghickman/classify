@@ -1,3 +1,4 @@
+import enum
 import functools
 
 from django.utils.decorators import classonlymethod
@@ -10,6 +11,15 @@ def my_decorator(f):
         f(*args, **kwargs)
 
     return wrapper
+
+
+class DummyEnum(enum.Enum):
+    RED = 1
+    BLUE = 2
+
+    @enum.property
+    def label(self):
+        return self.name.title()
 
 
 class DummyParent:

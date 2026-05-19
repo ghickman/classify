@@ -1,8 +1,16 @@
 import pytest
 
-from classify.classification import get_members
+from classify.classification import classify, get_members
 
-from .dummy_class import DummyClass, DummyParent
+from .dummy_class import DummyClass, DummyEnum, DummyParent
+
+
+def test_enums():
+    structure = classify(DummyEnum)
+
+    # sense check, but the main point here is to check an Enum is correctly
+    # classified
+    assert structure.name == "DummyEnum"
 
 
 @pytest.mark.parametrize(
