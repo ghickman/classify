@@ -4,6 +4,7 @@ import ast
 import importlib
 import itertools
 import os
+import pydoc
 from collections.abc import Iterator
 from pathlib import Path
 
@@ -24,7 +25,15 @@ class ClassFinder(ast.NodeVisitor):
         if self._in_class:
             return
 
-        self.classes.append(f"{self.module_path}.{node.name}")
+        dotted_path = f"{self.module_path}.{node.name}"
+
+        try:
+            # sense check we can import the found class
+            pydoc.resolve(dotted_path)
+        except (pydoc.ErrorDuringImport, ImportError):
+            pass
+        else:
+            self.classes.append(dotted_path)
 
         self._in_class = True
         self.generic_visit(node)
