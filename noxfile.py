@@ -11,3 +11,4 @@ def tests(session):
 
     session.run("just", "console", *session.posargs, external=True)
     session.run("just", "html", *session.posargs, external=True)
+    session.run("just", "test", *session.posargs, external=True)
