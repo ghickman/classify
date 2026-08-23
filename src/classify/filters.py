@@ -1,4 +1,5 @@
 import inspect
+import types
 
 from .dataclasses import Member
 
@@ -28,6 +29,12 @@ def is_inner_class(member: Member) -> bool:
 
 
 def is_method(member: Member) -> bool:
+    """
+    Filter out method members
+
+    Excludes methods wrapped with descriptors defined in C since we can't get
+    the source for those.
+    """
     return (
         member.kind
         in [
@@ -35,7 +42,14 @@ def is_method(member: Member) -> bool:
             "class method",
             "static method",
         ]
-        and not inspect.ismethoddescriptor(member.obj)
+        and not isinstance(
+            member.obj,
+            (
+                types.ClassMethodDescriptorType,
+                types.MethodDescriptorType,
+                types.WrapperDescriptorType,
+            ),
+        )
         and not inspect.isgetsetdescriptor(member.obj)
         and not inspect.isbuiltin(member.obj)
     )

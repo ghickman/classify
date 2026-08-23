@@ -14,6 +14,38 @@ def test_enums():
 
 
 @pytest.mark.parametrize(
+    "name",
+    [
+        "class_method",
+        "class_only_method",
+        "my_cached_prop",
+        "my_dj_cached_prop",
+        "static_method",
+    ],
+)
+def test_classify_includes_wrapped_methods(name):
+    # ⁂ classmethod, staticmethod, and cached_property all wrap their function
+    # in a descriptor object, which must not be mistaken for a C-implemented
+    # method descriptor and filtered out
+    structure = classify(DummyClass)
+
+    assert name in structure.methods
+
+
+def test_classify_excludes_c_implemented_methods():
+    class MyDict(dict):
+        def mine(self): ...
+
+    structure = classify(MyDict)
+
+    # ⁂ methods defined in C have no source to render, so they are dropped
+    assert "mine" in structure.methods
+    assert "get" not in structure.methods
+    assert "fromkeys" not in structure.methods
+    assert "__getitem__" not in structure.methods
+
+
+@pytest.mark.parametrize(
     ("cls", "expected"),
     [
         (
