@@ -69,6 +69,10 @@ def test_to_html_renders_ancestors(rendered):
     assert "<li>tests.ParentClass</li>" in rendered
 
 
+def test_to_html_renders_attribute_defining_class(rendered):
+    assert "<td>tests.MyClass</td>" in rendered
+
+
 def test_to_html_and_serve(classify_server):  # noqa: ARG001
     response = httpx.get("http://127.0.0.1:8008/")
     assert response.status_code == 200  # noqa: PLR2004

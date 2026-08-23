@@ -31,7 +31,7 @@
                 {{ name }} = {{ attribute.value|attribute }}
               </code>
             </td>
-            <td>{{ attribute.defining_class.name }}.{{ attribute.defining_class.name }}</td>
+            <td>{{ attribute.defining_class.module }}.{{ attribute.defining_class.name }}</td>
           </tr>
         {% endfor %}
       {% endfor %}
