@@ -95,6 +95,9 @@ def data_descriptors(data_descriptors: dict[str, list[DataDescriptor]], indent) 
             for name in ["getter", "setter", "deleter"]:
                 func = getattr(descriptor, name)
 
+                if func is None:
+                    continue
+
                 if len(definitions) > 1 and i == 0:
                     content += f"{indent}# Defined on: {func.defining_class.name}\n"
 
