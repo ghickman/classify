@@ -57,7 +57,7 @@
       <div class="method">
         <h3>def {{ name }}{{ declaration.arguments }}: [{{ declaration.defining_class.name }}]</h3>
         <p>{{ declaration.docstring|e }}</p>
-        <p>Found on lines {{ declaration.lines.start }} to {{ declaration.lines.start+declaration.lines.total }} of {{ declaration.file }}</p>
+        <p>Found on lines {{ declaration.lines.start }} to {{ declaration.lines.start+declaration.lines.total-1 }} of {{ declaration.file }}</p>
         <pre>{{ declaration.code }}</pre>
       </div>
     {% endfor %}
