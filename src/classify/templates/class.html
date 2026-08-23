@@ -8,7 +8,7 @@
   <h2>Ancestors (MRO)</h2>
   <ol>
     {% for ancestor in klass.ancestors %}
-    <li>{{ ancestor }}</li>
+    <li>{{ ancestor.module }}.{{ ancestor.name }}</li>
     {% endfor %}
   </ol>
 {% endif %}

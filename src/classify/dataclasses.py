@@ -40,8 +40,8 @@ class Class:
     name: str
     module: str
     docstring: str
-    ancestors: list[str]
-    parents: list[str]
+    ancestors: list["SimpleClass"]
+    parents: list[type]
     attributes: dict[str, list[Attribute]]
     classes: list["Class"]
     properties: dict[str, list["Method"]]

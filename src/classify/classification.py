@@ -103,7 +103,7 @@ def get_members(obj) -> list[Member]:
     ]
 
 
-def get_parents[C](obj: type[C]) -> list[str]:
+def get_parents[C](obj: type[C]) -> list[type]:
     tree = inspect.getclasstree([obj])
 
     # getclasstree returns a list of tuples, containing a class, and tuple with

@@ -3,12 +3,16 @@ import pytest
 from classify.dataclasses import Attribute, Class, Line, Method, SimpleClass
 
 
+class ParentClass:
+    pass
+
+
 def inner_class(name):
     return Class(
         name=name,
         module="",
         docstring="",
-        ancestors=[name],
+        ancestors=[],
         parents=[],
         attributes={
             "abc": [
@@ -45,8 +49,8 @@ def dummy_class():
         name="MyClass",
         module="",
         docstring="",
-        ancestors=[],
-        parents=["ParentClass"],
+        ancestors=[SimpleClass(name="ParentClass", module="tests")],
+        parents=[ParentClass],
         attributes={
             "my_var": [
                 Attribute(

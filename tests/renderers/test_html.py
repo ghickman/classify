@@ -65,6 +65,10 @@ def test_to_html_escapes_content(rendered):
     assert 'my_var = "a<b"' not in rendered
 
 
+def test_to_html_renders_ancestors(rendered):
+    assert "<li>tests.ParentClass</li>" in rendered
+
+
 def test_to_html_and_serve(classify_server):  # noqa: ARG001
     response = httpx.get("http://127.0.0.1:8008/")
     assert response.status_code == 200  # noqa: PLR2004
