@@ -114,7 +114,7 @@ def data_descriptors(data_descriptors: dict[str, list[DataDescriptor]], indent) 
 def to_string(structure: Class, indent: str = " " * DEFAULT_INDENT_WIDTH) -> str:
     content = declaration(structure.name, structure.parents, indent)
     content += "\n"
-    content += docstring(structure.docstring, indent) if docstring else ""
+    content += docstring(structure.docstring, indent)
     content += attributes(structure.attributes, indent)
     content += "\n"
     content += classes(structure.classes, indent)
