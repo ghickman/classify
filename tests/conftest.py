@@ -31,7 +31,7 @@ def inner_class(name):
 
 
 def method(name, **kwargs):
-    defining_class = SimpleClass(name=kwargs.get("defining_class", ""), module="")
+    defining_class = kwargs.get("defining_class", SimpleClass(name="", module=""))
 
     return Method(
         name=name,

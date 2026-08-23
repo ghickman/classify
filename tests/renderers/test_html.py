@@ -73,6 +73,11 @@ def test_to_html_renders_attribute_defining_class(rendered):
     assert "<td>tests.MyClass</td>" in rendered
 
 
+def test_to_html_renders_method_defining_class(rendered):
+    assert "def one: [ParentClass]" in rendered
+    assert "def one: [MyClass]" in rendered
+
+
 def test_to_html_renders_method_line_range(rendered):
     # a method starting on line 42 with 7 lines ends on line 48
     assert "Found on lines 42 to 48 of" in rendered
