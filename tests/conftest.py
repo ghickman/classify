@@ -47,7 +47,15 @@ def dummy_class():
         docstring="",
         ancestors=[],
         parents=["ParentClass"],
-        attributes={},
+        attributes={
+            "my_var": [
+                Attribute(
+                    name="my_var",
+                    defining_class=SimpleClass(name="MyClass", module="tests"),
+                    value="a<b",
+                )
+            ]
+        },
         classes=[
             inner_class("Meta"),
         ],
@@ -58,7 +66,11 @@ def dummy_class():
                 method(
                     "one", defining_class=SimpleClass(name="ParentClass", module="")
                 ),
-                method("one", defining_class=SimpleClass(name="MyClass", module="")),
+                method(
+                    "one",
+                    defining_class=SimpleClass(name="MyClass", module=""),
+                    code="    def one(self):\n        return 1 < 2\n",
+                ),
             ]
         },
     )

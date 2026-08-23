@@ -58,7 +58,7 @@ def serve_output(port: int) -> None:  # pragma: no cover
 def to_html(structure: Class, output_path: Path | None, serve: bool, port: int) -> None:
     from jinja2 import Environment, PackageLoader  # noqa: PLC0415
 
-    env = Environment(loader=PackageLoader("classify", "templates"))
+    env = Environment(loader=PackageLoader("classify", "templates"), autoescape=True)
     env.filters["attribute"] = attribute_value
     template = env.get_template("web.html")
     output = template.render(klass=structure)

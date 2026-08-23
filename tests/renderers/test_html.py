@@ -37,6 +37,14 @@ def classify_server():
     ds_proc.terminate()
 
 
+@pytest.fixture
+def rendered(dummy_class):
+    with tempfile.TemporaryDirectory() as path:
+        to_html(dummy_class, output_path=Path(path), serve=False, port=8000)
+
+        yield (Path(path) / "classify.html").read_text()
+
+
 def test_to_html(dummy_class):
     with tempfile.TemporaryDirectory() as path:
         path = Path(path)  # noqa: PLW2901
@@ -47,6 +55,14 @@ def test_to_html(dummy_class):
 
         content = output.read_text()
         assert dummy_class.name in content
+
+
+def test_to_html_escapes_content(rendered):
+    assert "return 1 &lt; 2" in rendered
+    assert "return 1 < 2" not in rendered
+
+    assert "my_var = &#34;a&lt;b&#34;" in rendered
+    assert 'my_var = "a<b"' not in rendered
 
 
 def test_to_html_and_serve(classify_server):  # noqa: ARG001
