@@ -60,11 +60,9 @@ class DataDescriptor:
     def from_member(cls, member: "Member") -> Self:
         logger.debug("extracting data descriptor")
 
-        getter = (
-            Method.from_func(member.obj.fget, member.cls)
-            if hasattr(member.obj, "fget")
-            else None
-        )
+        getter = None
+        if fget := getattr(member.obj, "fget", None):
+            getter = Method.from_func(fget, member.cls)
 
         setter = None
         if fset := getattr(member.obj, "fset", None):
