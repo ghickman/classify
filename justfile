@@ -39,9 +39,15 @@ run *args="":
     just run django.views.generic.FormView --renderer html --output output
 
 test *args="":
-    uv run -m coverage run --module pytest tests {{ args }}
-    -uv run -m coverage report
-    uv run -m coverage html
+   #!/usr/bin/env bash
+
+   if [[ -n "{{ args }}" ]]; then
+     uv run pytest {{ args }}
+   else
+     uv run -m coverage run --module pytest tests
+     uv run -m coverage report
+     uv run -m coverage html
+   fi
 
 e2e *args="--console-theme dracula":
     classify tests.dummy_class.DummyClass --django-settings classify.contrib.django.settings {{ args }}
