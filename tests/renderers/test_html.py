@@ -28,6 +28,9 @@ def classify_server():
     # Give the server time to start
     time.sleep(1)
 
+    # stdout=PIPE guarantees this, but ty can't tell that
+    assert ds_proc.stdout is not None
+
     # Check it started successfully
     assert not ds_proc.poll(), ds_proc.stdout.read().decode("utf-8")
 
