@@ -2,11 +2,10 @@ import contextlib
 import functools
 import inspect
 import os
-import socketserver
 import tempfile
 import webbrowser
 from collections.abc import Generator
-from http.server import SimpleHTTPRequestHandler
+from http.server import HTTPServer, SimpleHTTPRequestHandler
 from pathlib import Path
 
 from ..dataclasses import Class
@@ -46,7 +45,7 @@ def _(empty: None) -> Generator:  # noqa: ARG001
 
 
 def serve_output(port: int) -> None:  # pragma: no cover
-    httpd = socketserver.TCPServer(("", port), Handler)
+    httpd = HTTPServer(("", port), Handler)
 
     if not os.environ.get("TEST_MODE", None):
         print(f"Serving on port: {port}")
