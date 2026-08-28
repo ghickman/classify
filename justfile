@@ -1,3 +1,5 @@
+set fallback
+
 # list available commands
 default:
     @{{ just_executable() }} --list
