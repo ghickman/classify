@@ -5,7 +5,28 @@ from .dataclasses import Member
 
 
 def is_attribute(member: Member) -> bool:
-    return member.kind == "data" and not is_inner_class(member)
+    return (
+        member.kind == "data"
+        and not is_inner_class(member)
+        and not is_cached_property(member)
+    )
+
+
+def is_cached_property(member: Member) -> bool:
+    # covers functools.cached_property and variations like
+    # django.utils.functional.cached_property.
+    # These are method descriptors wrapping a function, so they get
+    # reported as "method", but the descriptor is not callable.
+    cls = type(member.obj)
+    # getattr_static: getattr() would call arbitrary __getattr__
+    # implementations on member values
+    func = inspect.getattr_static(member.obj, "func", None)
+    return (
+        hasattr(cls, "__get__")
+        and not hasattr(cls, "__set__")
+        and not callable(member.obj)
+        and callable(func)
+    )
 
 
 def is_data_descriptor(member: Member) -> bool:
