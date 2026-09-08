@@ -16,6 +16,7 @@ from .dataclasses import (
 )
 from .filters import (
     is_attribute,
+    is_cached_property,
     is_data_descriptor,
     is_inner_class,
     is_method,
@@ -65,6 +66,13 @@ def classify[C](obj: type[C]) -> Class:
         for member in props:
             logger.debug("extracting property", member=member)
             prop = Method.from_func(member.obj.fget, member.cls)
+            properties[member.name].append(prop)
+
+        ## CACHED PROPERTIES
+        cached_props = [m for m in members if is_cached_property(m)]
+        for member in cached_props:
+            logger.debug("extracting cached property", member=member)
+            prop = Method.from_func(member.obj, member.cls)
             properties[member.name].append(prop)
 
         ## DATA DESCRIPTORS

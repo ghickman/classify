@@ -32,6 +32,14 @@ def test_classify_includes_wrapped_methods(name):
     assert name in structure.methods
 
 
+@pytest.mark.parametrize("name", ["my_cached_prop", "my_dj_cached_prop"])
+def test_classify_cached_properties_are_properties(name):
+    structure = classify(DummyClass)
+
+    assert name in structure.properties
+    assert name not in structure.methods
+
+
 def test_classify_excludes_c_implemented_methods():
     class MyDict(dict):
         def mine(self): ...
