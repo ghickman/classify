@@ -26,6 +26,7 @@ fix:
     {{ just_executable() }} format
     {{ just_executable() }} lint --fix
     {{ just_executable() }} toml-sort --in-place
+    {{ just_executable() }} --fmt --justfile justfile
 
 release:
     uv build
