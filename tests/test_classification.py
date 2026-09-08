@@ -24,9 +24,8 @@ def test_enums():
     ],
 )
 def test_classify_includes_wrapped_methods(name):
-    # ⁂ classmethod, staticmethod, and cached_property all wrap their function
-    # in a descriptor object, which must not be mistaken for a C-implemented
-    # method descriptor and filtered out
+    # only include wrapped methods which are defined in Python so we can get
+    # their source
     structure = classify(DummyClass)
 
     assert name in structure.methods
@@ -38,7 +37,7 @@ def test_classify_excludes_c_implemented_methods():
 
     structure = classify(MyDict)
 
-    # ⁂ methods defined in C have no source to render, so they are dropped
+    # drop methods defined in C, they have no source to render
     assert "mine" in structure.methods
     assert "get" not in structure.methods
     assert "fromkeys" not in structure.methods
