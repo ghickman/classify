@@ -20,6 +20,12 @@ Kind = Literal[
 
 
 @frozen
+class Line:
+    start: int
+    total: int
+
+
+@frozen
 class Attribute:
     name: str
     defining_class: "SimpleClass"
@@ -47,6 +53,7 @@ class Class:
     properties: dict[str, list["Method"]]
     data_descriptors: dict[str, list["DataDescriptor"]]
     methods: dict[str, list["Method"]]
+    lines: Line
 
 
 @frozen
@@ -74,12 +81,6 @@ class DataDescriptor:
             deleter = Method.from_func(fdel, member.cls)
 
         return cls(name=member.name, getter=getter, setter=setter, deleter=deleter)
-
-
-@frozen
-class Line:
-    start: int
-    total: int
 
 
 @frozen

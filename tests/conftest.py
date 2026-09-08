@@ -27,6 +27,7 @@ def inner_class(name):
         properties={},
         data_descriptors={},
         methods={},
+        lines=Line(start=42, total=7),
     )
 
 
@@ -77,4 +78,5 @@ def dummy_class():
                 ),
             ]
         },
+        lines=Line(start=42, total=7),
     )

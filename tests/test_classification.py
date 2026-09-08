@@ -1,6 +1,7 @@
 import pytest
 
 from classify.classification import classify, get_members
+from classify.dataclasses import Line
 
 from .dummy_class import DummyClass, DummyEnum, DummyParent
 
@@ -42,6 +43,12 @@ def test_classify_excludes_c_implemented_methods():
     assert "get" not in structure.methods
     assert "fromkeys" not in structure.methods
     assert "__getitem__" not in structure.methods
+
+
+def test_classify_classes_have_line_numbers():
+    structure = classify(DummyClass)
+
+    assert structure.lines == Line(start=49, total=63)
 
 
 @pytest.mark.parametrize(

@@ -5,7 +5,15 @@ import pydoc
 
 import structlog
 
-from .dataclasses import Attribute, Class, DataDescriptor, Member, Method, SimpleClass
+from .dataclasses import (
+    Attribute,
+    Class,
+    DataDescriptor,
+    Line,
+    Member,
+    Method,
+    SimpleClass,
+)
 from .filters import (
     is_attribute,
     is_data_descriptor,
@@ -67,6 +75,9 @@ def classify[C](obj: type[C]) -> Class:
 
     ancestors = [SimpleClass.from_class(c) for c in mro[:-1]]
 
+    # Get source line details
+    lines, start_line = inspect.getsourcelines(obj)
+
     return Class(
         name=obj.__name__,
         module=obj.__module__,
@@ -78,6 +89,7 @@ def classify[C](obj: type[C]) -> Class:
         properties=dict(sorted(properties.items())),
         data_descriptors=dict(sorted(data_descriptors.items())),
         methods=dict(sorted(methods.items())),
+        lines=Line(start=start_line, total=len(lines)),
     )
 
 
