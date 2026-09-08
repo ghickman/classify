@@ -42,6 +42,7 @@ def is_method(member: Member) -> bool:
             "class method",
             "static method",
         ]
+        and callable(member.obj)
         and not isinstance(
             member.obj,
             (
