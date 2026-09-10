@@ -27,7 +27,7 @@ def inner_class(name):
         properties={},
         data_descriptors={},
         methods={},
-        lines=Line(start=42, total=7),
+        lines=Line(source="", start=42, total=7),
     )
 
 
@@ -40,7 +40,7 @@ def method(name, **kwargs):
         defining_class=defining_class,
         arguments=kwargs.get("arguments", ""),
         code=kwargs.get("code", ""),
-        lines=Line(start=42, total=7),
+        lines=Line(source="", start=42, total=7),
     )
 
 
@@ -78,5 +78,5 @@ def dummy_class():
                 ),
             ]
         },
-        lines=Line(start=42, total=7),
+        lines=Line(source="", start=42, total=7),
     )

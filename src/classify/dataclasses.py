@@ -23,8 +23,25 @@ Kind = Literal[
 
 @frozen
 class Line:
+    source: str
     start: int
     total: int
+
+    @classmethod
+    def from_obj(cls, obj) -> Self | None:
+        """
+        Get source line details from the given object
+
+        Dynamically created objects have no source for us to get lines from so
+        this can fail, hence the optional None return.
+        """
+        try:
+            source, start_line = inspect.getsourcelines(obj)
+        except (OSError, TypeError):
+            logger.debug("could not find source for class", cls=obj)
+            return None
+
+        return Line(source=source, start=start_line, total=len(source))
 
 
 @frozen
@@ -55,7 +72,7 @@ class Class:
     properties: dict[str, list["Method"]]
     data_descriptors: dict[str, list["DataDescriptor"]]
     methods: dict[str, list["Method"]]
-    lines: Line
+    lines: Line | None
 
 
 @frozen
@@ -110,7 +127,8 @@ class Method:
         arguments = str(inspect.signature(func))
 
         # Get source line details
-        lines, start_line = inspect.getsourcelines(func)
+        lines = Line.from_obj(func)
+        code = "".join(lines.source) if lines else ""
 
         file = inspect.getsourcefile(func)
 
@@ -119,8 +137,8 @@ class Method:
             docstring=pydoc.getdoc(func),
             defining_class=SimpleClass.from_class(defining_class),
             arguments=arguments,
-            code="".join(lines),
-            lines=Line(start=start_line, total=len(lines)),
+            code=code,
+            lines=lines,
             file=file,
         )
 

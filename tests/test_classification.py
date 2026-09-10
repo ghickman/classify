@@ -1,7 +1,6 @@
 import pytest
 
 from classify.classification import classify, get_members
-from classify.dataclasses import Line
 
 from .dummy_class import DummyClass, DummyEnum, DummyParent
 
@@ -48,7 +47,8 @@ def test_classify_excludes_c_implemented_methods():
 def test_classify_classes_have_line_numbers():
     structure = classify(DummyClass)
 
-    assert structure.lines == Line(start=49, total=63)
+    assert structure.lines.start == 49  # noqa: PLR2004
+    assert structure.lines.total == 63  # noqa: PLR2004
 
 
 @pytest.mark.parametrize(
