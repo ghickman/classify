@@ -1,7 +1,7 @@
 import inspect
-import types
 
 from .dataclasses import Member
+from .inspection import is_function
 
 
 def is_attribute(member: Member) -> bool:
@@ -32,27 +32,16 @@ def is_method(member: Member) -> bool:
     """
     Filter out method members
 
-    Excludes methods wrapped with descriptors defined in C since we can't get
-    the source for those.
+    stdlib's inspect treats all non-data descriptors as methods.  This captures
+    any members not defined in C, but also dynamically created ones, eg
+    Django's DeferredAttribute.  We can't get the source for any of these
+    members so also filter down to anything with an underlying function.
     """
-    return (
-        member.kind
-        in [
-            "method",
-            "class method",
-            "static method",
-        ]
-        and not isinstance(
-            member.obj,
-            (
-                types.ClassMethodDescriptorType,
-                types.MethodDescriptorType,
-                types.WrapperDescriptorType,
-            ),
-        )
-        and not inspect.isgetsetdescriptor(member.obj)
-        and not inspect.isbuiltin(member.obj)
-    )
+    return member.kind in [
+        "method",
+        "class method",
+        "static method",
+    ] and is_function(member.obj)
 
 
 def is_property(member: Member) -> bool:
