@@ -5,6 +5,8 @@ from typing import Any, Literal, Self
 import structlog
 from attrs import frozen
 
+from .inspection import unwrap
+
 
 logger = structlog.get_logger()
 
@@ -103,15 +105,7 @@ class Method:
 
     @classmethod
     def from_func(cls, func, defining_class) -> Self:
-        # get target of cached property decorators
-        if hasattr(func, "func"):
-            while getattr(func, "func", None):
-                func = func.func
-
-        # unwrap decorated methods and functions
-        if hasattr(func, "__wrapped__"):  # decorated methods
-            while getattr(func, "__wrapped__", None):
-                func = func.__wrapped__
+        func = unwrap(func)
 
         arguments = str(inspect.signature(func))
 
