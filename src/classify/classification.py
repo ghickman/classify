@@ -17,7 +17,12 @@ from .dataclasses import (
     SimpleClass,
     Unclassified,
 )
-from .filters import is_function, is_inner_class, is_native_descriptor
+from .filters import (
+    is_cached_property,
+    is_function,
+    is_inner_class,
+    is_native_descriptor,
+)
 
 
 logger = structlog.get_logger()
@@ -46,10 +51,19 @@ def bucket_for(member: Member) -> Bucket:  # noqa: PLR0911
             # created ones, eg Django's DeferredAttribute.  We can't get source
             # for either, so only treat members with an underlying function as
             # methods.
-            if is_function(member.obj):
-                return Bucket.METHOD
+            if not is_function(member.obj):
+                return Bucket.NATIVE
 
-            return Bucket.NATIVE
+            # Cached properties are non data descriptors too, so inspect
+            # considers them methods.  However, we want to treat them as
+            # properties, because, well, it's in the name.
+            # classmethods are also non-callable descriptors, but pydoc gives
+            # them their own kind, so only the "method" kind needs to be
+            # considered here.
+            if member.kind == "method" and is_cached_property(member.obj):
+                return Bucket.PROPERTY
+
+            return Bucket.METHOD
 
         case "readonly property":
             return Bucket.PROPERTY
@@ -112,8 +126,10 @@ def classify[C](obj: type[C]) -> Class:
         ## PROPERTIES
         for member in members[Bucket.PROPERTY]:
             logger.debug("extracting property", member=member)
-            prop = Method.from_func(member.obj.fget, member.cls)
-            properties[member.name].append(prop)
+            # property exposes its getter as fget, but a cached property keeps
+            # its function on the descriptor
+            func = getattr(member.obj, "fget", member.obj)
+            properties[member.name].append(Method.from_func(func, member.cls))
 
         ## DATA DESCRIPTORS
         for member in members[Bucket.DATA_DESCRIPTOR]:

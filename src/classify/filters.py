@@ -4,6 +4,19 @@ from .dataclasses import Member
 from .inspection import unwrap
 
 
+def is_cached_property(obj) -> bool:
+    """
+    Is the given object a cached property?
+
+    Cached properties are non-data descriptors, so inspect sees them as
+    methods.  However, unlike a "real" method, or a decorated one, the
+    descriptor object itself is not callable, it only implements __get__.  This
+    is what separates cached_property and third party equivalents from what we
+    consider methods.
+    """
+    return inspect.ismethoddescriptor(obj) and not callable(obj)
+
+
 def is_function(obj) -> bool:
     """
     Can we treat the given object as a function?

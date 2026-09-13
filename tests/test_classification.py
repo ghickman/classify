@@ -37,7 +37,8 @@ def member_named(cls, name) -> Member:
         (DummyClass, "Meta", Bucket.CLASS),
         (DummyClass, "one", Bucket.METHOD),
         (DummyClass, "four", Bucket.METHOD),
-        (DummyClass, "my_cached_prop", Bucket.METHOD),
+        (DummyClass, "my_cached_prop", Bucket.PROPERTY),
+        (DummyClass, "my_dj_cached_prop", Bucket.PROPERTY),
         (DummyClass, "my_prop", Bucket.PROPERTY),
         (DummyClass, "my_data_descriptor", Bucket.DATA_DESCRIPTOR),
         (DummyParent, "__dict__", Bucket.NATIVE),
@@ -134,8 +135,6 @@ def test_classify_correctly_buckets_members():
     [
         "class_method",
         "class_only_method",
-        "my_cached_prop",
-        "my_dj_cached_prop",
         "static_method",
     ],
 )
