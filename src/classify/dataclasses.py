@@ -1,3 +1,4 @@
+import enum
 import inspect
 import pydoc
 from typing import Any, Literal, Self
@@ -19,6 +20,16 @@ Kind = Literal[
     "data descriptor",
     "readonly property",
 ]
+
+
+class Bucket(enum.StrEnum):
+    ATTRIBUTE = enum.auto()
+    CLASS = enum.auto()
+    DATA_DESCRIPTOR = enum.auto()
+    METHOD = enum.auto()
+    NATIVE = enum.auto()
+    PROPERTY = enum.auto()
+    UNKNOWN = enum.auto()
 
 
 @frozen
@@ -72,6 +83,8 @@ class Class:
     properties: dict[str, list["Method"]]
     data_descriptors: dict[str, list["DataDescriptor"]]
     methods: dict[str, list["Method"]]
+    native: dict[str, list["Unclassified"]]
+    unknown: dict[str, list["Unclassified"]]
     lines: Line | None
 
 
@@ -158,4 +171,29 @@ class SimpleClass:
         return SimpleClass(
             name=klass.__name__,
             module=klass.__module__,
+        )
+
+
+@frozen
+class Unclassified:
+    """
+    A member we currently do not know what to do with
+
+    Now that we bucket every member we want to expose those which we don't know
+    how to handle yet.  This allows consumers both internally and externally to
+    work with those members.
+    """
+
+    name: str
+    kind: Kind
+    defining_class: "SimpleClass"
+    type_name: str
+
+    @classmethod
+    def from_member(cls, member: "Member") -> Self:
+        return cls(
+            name=member.name,
+            kind=member.kind,
+            defining_class=SimpleClass.from_class(member.cls),
+            type_name=type(member.obj).__name__,
         )

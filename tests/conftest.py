@@ -27,6 +27,8 @@ def inner_class(name):
         properties={},
         data_descriptors={},
         methods={},
+        native={},
+        unknown={},
         lines=Line(source=[], start=42, total=7),
     )
 
@@ -78,5 +80,7 @@ def dummy_class():
                 ),
             ]
         },
+        native={},
+        unknown={},
         lines=Line(source=[], start=42, total=7),
     )

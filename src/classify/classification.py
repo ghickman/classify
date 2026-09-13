@@ -2,28 +2,78 @@ import builtins
 import collections
 import inspect
 import pydoc
+from collections.abc import Iterable
 
 import structlog
 
 from .dataclasses import (
     Attribute,
+    Bucket,
     Class,
     DataDescriptor,
     Line,
     Member,
     Method,
     SimpleClass,
+    Unclassified,
 )
-from .filters import (
-    is_attribute,
-    is_data_descriptor,
-    is_inner_class,
-    is_method,
-    is_property,
-)
+from .filters import is_function, is_inner_class, is_native_descriptor
 
 
 logger = structlog.get_logger()
+
+
+def bucket_for(member: Member) -> Bucket:  # noqa: PLR0911
+    """
+    Find the right Bucket for the given Member
+
+    pydoc defines a kinds on each member, see Kind for the full list.  We
+    refine those here into classify's version.
+
+    They're called buckets here because we're making sure we assign every
+    member to _something_.
+    """
+    match member.kind:
+        case "data":
+            if is_inner_class(member):
+                return Bucket.CLASS
+
+            return Bucket.ATTRIBUTE
+
+        case "method" | "class method" | "static method":
+            # stdlib's inspect treats all non-data descriptors as methods.
+            # That captures members defined in C, as well as dynamically
+            # created ones, eg Django's DeferredAttribute.  We can't get source
+            # for either, so only treat members with an underlying function as
+            # methods.
+            if is_function(member.obj):
+                return Bucket.METHOD
+
+            return Bucket.NATIVE
+
+        case "readonly property":
+            return Bucket.PROPERTY
+
+        case "data descriptor":
+            if is_native_descriptor(member):
+                return Bucket.NATIVE
+
+            return Bucket.DATA_DESCRIPTOR
+
+        case _:
+            # pydoc doesn't currently produce a kind which gets here, so this
+            # is really a bit of speculative future-proofing.
+            return Bucket.UNKNOWN
+
+
+def bucket_members(members: Iterable[Member]) -> dict[Bucket, list[Member]]:
+    """Assign every member to a Bucket"""
+    buckets: dict[Bucket, list[Member]] = {bucket: [] for bucket in Bucket}
+
+    for member in members:
+        buckets[bucket_for(member)].append(member)
+
+    return buckets
 
 
 def classify[C](obj: type[C]) -> Class:
@@ -37,41 +87,48 @@ def classify[C](obj: type[C]) -> Class:
     classes = []
     data_descriptors = collections.defaultdict(list)
     methods = collections.defaultdict(list)
+    native = collections.defaultdict(list)
     properties = collections.defaultdict(list)
+    unknown = collections.defaultdict(list)
 
     structlog.contextvars.clear_contextvars()
     for cls in mro:
         structlog.contextvars.bind_contextvars(**{"class": cls.__name__})
-        members = list(get_members(cls))
+        members = bucket_members(get_members(cls))
 
         ## ATTRIBUTES
-        class_attrs = [m for m in members if is_attribute(m)]
-        for member in class_attrs:
+        for member in members[Bucket.ATTRIBUTE]:
             structlog.contextvars.bind_contextvars(member=member)
             attributes[member.name].append(Attribute.from_member(member))
 
         ## CLASSES
-        inner_classes = [m for m in members if is_inner_class(m)]
-        classes.extend(classify(c.obj) for c in inner_classes)
+        classes.extend(classify(c.obj) for c in members[Bucket.CLASS])
 
         ## METHODS
-        instance_methods = [m for m in members if is_method(m)]
-        for member in instance_methods:
+        for member in members[Bucket.METHOD]:
             structlog.contextvars.bind_contextvars(member=member)
             methods[member.name].append(Method.from_member(member))
 
         ## PROPERTIES
-        props = [m for m in members if is_property(m)]
-        for member in props:
+        for member in members[Bucket.PROPERTY]:
             logger.debug("extracting property", member=member)
             prop = Method.from_func(member.obj.fget, member.cls)
             properties[member.name].append(prop)
 
         ## DATA DESCRIPTORS
-        descriptors = [m for m in members if is_data_descriptor(m)]
-        for member in descriptors:
+        for member in members[Bucket.DATA_DESCRIPTOR]:
             structlog.contextvars.bind_contextvars(member=member)
             data_descriptors[member.name].append(DataDescriptor.from_member(member))
+
+        ## NATIVE
+        for member in members[Bucket.NATIVE]:
+            logger.debug("member has no Python source", member=member)
+            native[member.name].append(Unclassified.from_member(member))
+
+        ## UNKNOWN
+        for member in members[Bucket.UNKNOWN]:
+            logger.warning("could not classify member", member=member)
+            unknown[member.name].append(Unclassified.from_member(member))
 
     ancestors = [SimpleClass.from_class(c) for c in mro[:-1]]
 
@@ -86,6 +143,8 @@ def classify[C](obj: type[C]) -> Class:
         properties=dict(sorted(properties.items())),
         data_descriptors=dict(sorted(data_descriptors.items())),
         methods=dict(sorted(methods.items())),
+        native=dict(sorted(native.items())),
+        unknown=dict(sorted(unknown.items())),
         lines=Line.from_obj(obj),
     )
 

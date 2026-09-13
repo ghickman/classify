@@ -1,19 +1,18 @@
 import inspect
 
 from .dataclasses import Member
-from .inspection import is_function
+from .inspection import unwrap
 
 
-def is_attribute(member: Member) -> bool:
-    return member.kind == "data" and not is_inner_class(member)
+def is_function(obj) -> bool:
+    """
+    Can we treat the given object as a function?
 
-
-def is_data_descriptor(member: Member) -> bool:
-    return (
-        member.kind == "data descriptor"
-        and not inspect.isgetsetdescriptor(member.obj)
-        and not inspect.ismemberdescriptor(member.obj)
-    )
+    inspect gives us a lot of things which quack like functions, even when we
+    can't get a signature or source for them.  So, check we have a Python
+    function once any wrappers have been removed.
+    """
+    return inspect.isfunction(unwrap(obj))
 
 
 def is_inner_class(member: Member) -> bool:
@@ -25,24 +24,16 @@ def is_inner_class(member: Member) -> bool:
     # a prefix that can be removed from member.obj's __qualname__.  If the
     # remainder matches member.name then we have an inner class.
     name = member.obj.__qualname__.removeprefix(f"{member.cls.__qualname__}.")
-    return name == member.name and member.kind == "data"
+    return name == member.name
 
 
-def is_method(member: Member) -> bool:
+def is_native_descriptor(member: Member) -> bool:
     """
-    Filter out method members
+    Is this data descriptor implemented in C?
 
-    stdlib's inspect treats all non-data descriptors as methods.  This captures
-    any members not defined in C, but also dynamically created ones, eg
-    Django's DeferredAttribute.  We can't get the source for any of these
-    members so also filter down to anything with an underlying function.
+    getset and member descriptors, eg __dict__ and __weakref__, have no Python
+    source for us to render.
     """
-    return member.kind in [
-        "method",
-        "class method",
-        "static method",
-    ] and is_function(member.obj)
-
-
-def is_property(member: Member) -> bool:
-    return member.kind == "readonly property"
+    return inspect.isgetsetdescriptor(member.obj) or inspect.ismemberdescriptor(
+        member.obj
+    )
