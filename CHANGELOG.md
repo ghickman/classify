@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.09.1
+- Capture all members, even those we don't handle yet
+- Correctly handle cached properties
+
 ## 2025.10.1
 - Resurrecting the project after ~12y of going stale
 - Move supported Python versions from 2.6&2.7 to 3.12+
