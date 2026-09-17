@@ -39,6 +39,7 @@ Changelog = "https://github.com/ghickman/classify/blob/main/CHANGELOG.md"
 dev = [
   "coverage>=7.11.0",
   "django>=5.2.15",
+  "first>=2.0.2",
   "httpx>=0.28.1",
   "ipdb>=0.13.13",
   "nox>=2025.10.16",
@@ -64,8 +65,9 @@ relative_files = true
 dynamic_context = "test_function"
 omit = [
   "src/classify/__main__.py",
-  "src/classify/contrib/*",
+  "src/classify/contrib/django/settings.py",
   "src/classify/django.py",
+  "tests/django_proj/*",
   "tests/dummy_class.py",
 ]
 source = ["src", "tests"]
@@ -79,7 +81,6 @@ env = [
 [tool.ruff]
 line-length = 88
 extend-exclude = [
-  "src/classify/contrib/django/",
   "src/classify/templates",
 ]
 src = ["src", "tests"]
@@ -91,6 +92,7 @@ ignore = [
   "C90",
   "COM",
   "D",
+  "DJ",
   "E501",
   "ERA001",
   "FBT",

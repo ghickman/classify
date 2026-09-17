@@ -1,6 +1,12 @@
 import pytest
 
 from classify.dataclasses import Attribute, Class, Line, Method, SimpleClass
+from classify.django import setup_django
+
+
+@pytest.fixture(scope="module")
+def setup_dj():
+    setup_django("tests.django_proj.core.settings")
 
 
 class ParentClass:
