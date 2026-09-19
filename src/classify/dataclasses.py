@@ -6,7 +6,7 @@ from typing import Any, Literal, Self
 import structlog
 from attrs import frozen
 
-from .inspection import unwrap
+from .inspection import safe_getattr, unwrap
 
 
 logger = structlog.get_logger()
@@ -100,16 +100,16 @@ class DataDescriptor:
         logger.debug("extracting data descriptor")
 
         getter = None
-        if fget := getattr(member.obj, "fget", None):
+        if fget := safe_getattr(member.obj, "fget"):
             getter = Method.from_func(fget, member.cls)
 
         setter = None
-        if fset := getattr(member.obj, "fset", None):
+        if fset := safe_getattr(member.obj, "fset"):
             setter = Method.from_func(fset, member.cls)
 
         # property() creates an fdel with the value `None`
         deleter = None
-        if fdel := getattr(member.obj, "fdel", None):
+        if fdel := safe_getattr(member.obj, "fdel"):
             deleter = Method.from_func(fdel, member.cls)
 
         return cls(name=member.name, getter=getter, setter=setter, deleter=deleter)

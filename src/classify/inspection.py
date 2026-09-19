@@ -1,3 +1,26 @@
+import structlog
+
+
+logger = structlog.get_logger()
+
+
+def safe_getattr(obj, attribute, default=None):
+    """
+    getattr(), but treats any failure as a missing attribute
+
+    Python being a dynamic language brings some challenges for introspection.
+    In this case, a __getattr__ that does not behave as expected can cause fun
+    and interesting problems when trying to get the original definition.  We
+    could use inspect.getattr_static but that stops us being able to uwrap
+    descriptors, breaking lots of definitions.
+    """
+    try:
+        return getattr(obj, attribute, default)
+    except Exception:  # noqa: BLE001
+        logger.debug("getattr failed, using default", obj=obj, attribute=attribute)
+        return default
+
+
 def unwrap(obj):
     """
     Get the function underneath any wrapper structure
@@ -12,7 +35,7 @@ def unwrap(obj):
         seen.add(id(obj))
 
         for attribute in ("func", "__func__", "__wrapped__"):
-            wrapped = getattr(obj, attribute, None)
+            wrapped = safe_getattr(obj, attribute)
             if wrapped is not None:
                 obj = wrapped
                 break

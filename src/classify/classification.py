@@ -24,6 +24,7 @@ from .filters import (
     is_native_descriptor,
 )
 from .hooks import NO_HOOKS, Hooks
+from .inspection import safe_getattr
 
 
 logger = structlog.get_logger()
@@ -137,7 +138,7 @@ def classify[C](obj: type[C], *, hooks: Hooks = NO_HOOKS) -> Class:
             logger.debug("extracting property", member=member)
             # property exposes its getter as fget, but a cached property keeps
             # its function on the descriptor
-            func = getattr(member.obj, "fget", member.obj)
+            func = safe_getattr(member.obj, "fget", member.obj)
             properties[member.name].append(Method.from_func(func, member.cls))
 
         ## DATA DESCRIPTORS
