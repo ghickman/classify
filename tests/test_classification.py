@@ -2,9 +2,9 @@ import datetime
 
 import pytest
 
-from classify import classification
 from classify.classification import bucket_for, bucket_members, classify, get_members
 from classify.dataclasses import Bucket, Member
+from classify.hooks import Hooks
 
 from .dummy_class import DummyClass, DummyEnum, DummyParent
 
@@ -167,23 +167,17 @@ def test_classify_records_native_members():
     assert descriptor.defining_class.name == "DummyParent"
 
 
-def test_classify_records_unknown_members(monkeypatch):
+def test_classify_records_unknown_members():
     # test the unknown path for bucketing, even though pydoc doesn't actually
-    # give us a kind that lets us get there currently
+    # give us a kind that lets us get there currently, we can use a hook to
+    # generate one for us.
     class Mystery:
         pass
 
     member = Member(name="mystery", kind="property", cls=Mystery, obj=None)
+    hooks = Hooks(members=[lambda _: [member]])
 
-    def with_unknown(members):
-        buckets = bucket_members(members)
-        buckets[Bucket.UNKNOWN].append(member)
-        return buckets
-
-    # don't love it, but needs must
-    monkeypatch.setattr(classification, "bucket_members", with_unknown)
-
-    structure = classify(Mystery)
+    structure = classify(Mystery, hooks=hooks)
 
     assert "mystery" in structure.unknown
     assert structure.unknown["mystery"][-1].type_name == "NoneType"

@@ -11,6 +11,7 @@ from . import renderers
 from .classification import classify
 from .django import setup_django
 from .exceptions import NotAClassError
+from .hooks import NO_HOOKS
 from .renderers import Renderer
 from .resolution import resolve
 
@@ -50,8 +51,13 @@ def run(
     port,
     serve,
 ) -> None:
+    hooks = NO_HOOKS
     if django_settings:
         setup_django(django_settings)
+
+        # import after configuring Django, and in this branch so we classify
+        # doesn't have to have Django as a dependency
+        from .contrib.django.hooks import hooks  # noqa: PLC0415
 
     default_log_level = logging.DEBUG if debug else logging.WARNING
     structlog.configure(
@@ -81,7 +87,7 @@ def run(
         )
         sys.exit(1)
 
-    structure = classify(obj)
+    structure = classify(obj, hooks=hooks)
 
     match renderer:
         case Renderer.CONSOLE:

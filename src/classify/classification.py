@@ -23,12 +23,14 @@ from .filters import (
     is_inner_class,
     is_native_descriptor,
 )
+from .hooks import NO_HOOKS, Hooks
+from .inspection import safe_getattr
 
 
 logger = structlog.get_logger()
 
 
-def bucket_for(member: Member) -> Bucket:  # noqa: PLR0911
+def bucket_for(member: Member, hooks: Hooks = NO_HOOKS) -> Bucket:  # noqa: PLR0911
     """
     Find the right Bucket for the given Member
 
@@ -38,6 +40,12 @@ def bucket_for(member: Member) -> Bucket:  # noqa: PLR0911
     They're called buckets here because we're making sure we assign every
     member to _something_.
     """
+    # first check hooks
+    for hook in hooks.buckets:
+        if (bucket := hook(member)) is not None:
+            return bucket
+
+    # then check core bucketing if hooks have no opinion
     match member.kind:
         case "data":
             if is_inner_class(member):
@@ -80,17 +88,19 @@ def bucket_for(member: Member) -> Bucket:  # noqa: PLR0911
             return Bucket.UNKNOWN
 
 
-def bucket_members(members: Iterable[Member]) -> dict[Bucket, list[Member]]:
+def bucket_members(
+    members: Iterable[Member], hooks: Hooks = NO_HOOKS
+) -> dict[Bucket, list[Member]]:
     """Assign every member to a Bucket"""
     buckets: dict[Bucket, list[Member]] = {bucket: [] for bucket in Bucket}
 
     for member in members:
-        buckets[bucket_for(member)].append(member)
+        buckets[bucket_for(member, hooks)].append(member)
 
     return buckets
 
 
-def classify[C](obj: type[C]) -> Class:
+def classify[C](obj: type[C], *, hooks: Hooks = NO_HOOKS) -> Class:
     # flatten the MRO of the given class and flip the order so it's the first
     # non-object class first
     mro = [cls for cls in reversed(inspect.getmro(obj)) if cls is not builtins.object]
@@ -108,7 +118,7 @@ def classify[C](obj: type[C]) -> Class:
     structlog.contextvars.clear_contextvars()
     for cls in mro:
         structlog.contextvars.bind_contextvars(**{"class": cls.__name__})
-        members = bucket_members(get_members(cls))
+        members = bucket_members(get_members(cls, hooks), hooks)
 
         ## ATTRIBUTES
         for member in members[Bucket.ATTRIBUTE]:
@@ -116,7 +126,7 @@ def classify[C](obj: type[C]) -> Class:
             attributes[member.name].append(Attribute.from_member(member))
 
         ## CLASSES
-        classes.extend(classify(c.obj) for c in members[Bucket.CLASS])
+        classes.extend(classify(c.obj, hooks=hooks) for c in members[Bucket.CLASS])
 
         ## METHODS
         for member in members[Bucket.METHOD]:
@@ -128,7 +138,7 @@ def classify[C](obj: type[C]) -> Class:
             logger.debug("extracting property", member=member)
             # property exposes its getter as fget, but a cached property keeps
             # its function on the descriptor
-            func = getattr(member.obj, "fget", member.obj)
+            func = safe_getattr(member.obj, "fget", member.obj)
             properties[member.name].append(Method.from_func(func, member.cls))
 
         ## DATA DESCRIPTORS
@@ -165,7 +175,7 @@ def classify[C](obj: type[C]) -> Class:
     )
 
 
-def get_members(obj) -> list[Member]:
+def get_members(obj, hooks: Hooks = NO_HOOKS) -> list[Member]:
     """
     Get members from the given object
 
@@ -180,11 +190,19 @@ def get_members(obj) -> list[Member]:
         for name, kind, cls, obj in pydoc.classify_class_attrs(obj)
     ]
     # filter down to non-private items and those defined on the given object
-    return [
-        member
+    found = {
+        member.name: member
         for member in members
         if pydoc.visiblename(member.name, obj=obj) and member.cls == obj
-    ]
+    }
+
+    # Now let hooks influence what we found.
+    # This can be adding new items to the list, or members we've already found.
+    # The goal here is to expose the process to plugin authors.
+    for hook in hooks.members:
+        found |= {member.name: member for member in hook(obj)}
+
+    return list(found.values())
 
 
 def get_parents[C](obj: type[C]) -> list[type]:

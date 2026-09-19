@@ -20,7 +20,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    "core",
+    "tests.django_proj.core",
 ]
 
 MIDDLEWARE = []

@@ -62,7 +62,7 @@ wheels = [
 
 [[package]]
 name = "classify"
-version = "2026.9.1"
+version = "2026.9.2"
 source = { editable = "." }
 dependencies = [
     { name = "attrs" },
@@ -76,6 +76,7 @@ dependencies = [
 dev = [
     { name = "coverage" },
     { name = "django" },
+    { name = "first" },
     { name = "httpx" },
     { name = "ipdb" },
     { name = "nox" },
@@ -100,6 +101,7 @@ requires-dist = [
 dev = [
     { name = "coverage", specifier = ">=7.11.0" },
     { name = "django", specifier = ">=5.2.15" },
+    { name = "first", specifier = ">=2.0.2" },
     { name = "httpx", specifier = ">=0.28.1" },
     { name = "ipdb", specifier = ">=0.13.13" },
     { name = "nox", specifier = ">=2025.10.16" },
@@ -278,6 +280,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/1d/65/ce7f1b70157833bf3cb851b556a37d4547ceafc158aa9b34b36782f23696/filelock-3.20.3.tar.gz", hash = "sha256:18c57ee915c7ec61cff0ecf7f0f869936c7c30191bb0cf406f1341778d0834e1", size = 19485, upload-time = "2026-01-09T17:55:05.421Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b5/36/7fb70f04bf00bc646cd5bb45aa9eddb15e19437a28b8fb2b4a5249fac770/filelock-3.20.3-py3-none-any.whl", hash = "sha256:4b0dda527ee31078689fc205ec4f1c1bf7d56cf88b6dc9426c4f230e46c2dce1", size = 16701, upload-time = "2026-01-09T17:55:04.334Z" },
+]
+
+[[package]]
+name = "first"
+version = "2.0.2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/b0/a2/78a4e6801fbd789c60888afb8e28ccbe629f9a25137bfafecb363db2fb53/first-2.0.2.tar.gz", hash = "sha256:ff285b08c55f8c97ce4ea7012743af2495c9f1291785f163722bd36f6af6d3bf", size = 6964, upload-time = "2019-03-07T10:07:28.322Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/40/62/eda58db762d4845c971029becfecf6e85ad71c3bcba7d400598013a222a1/first-2.0.2-py2.py3-none-any.whl", hash = "sha256:8d8e46e115ea8ac652c76123c0865e3ff18372aef6f03c22809ceefcea9dec86", size = 5359, upload-time = "2019-03-07T10:07:26.535Z" },
 ]
 
 [[package]]

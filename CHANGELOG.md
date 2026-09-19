@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026.09.2
+- Add a hooks system to allow influencing of core mechanics
+- Support Django's models and forms via the hooks system
+
 ## 2026.09.1
 - Capture all members, even those we don't handle yet
 - Correctly handle cached properties
