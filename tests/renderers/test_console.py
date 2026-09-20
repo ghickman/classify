@@ -1,7 +1,7 @@
 import pytest
 
 from classify.dataclasses import Attribute, DataDescriptor, Method, SimpleClass
-from classify.renderers.string import attributes, data_descriptors, docstring
+from classify.renderers.console import attributes, data_descriptors, docstring
 
 
 class MyClass:
