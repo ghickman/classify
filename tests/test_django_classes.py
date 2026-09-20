@@ -55,6 +55,56 @@ def test_form_inheritance():
     assert name.defining_class.name == "DummyForm"
 
 
+def test_model_form():
+    from tests.django_proj.core.models import DummyModelForm  # noqa: PLC0415
+
+    data = classify(DummyModelForm, hooks=hooks)
+
+    assert data.name == "DummyModelForm"
+
+    # the metaclass builds Meta.model's fields into base_fields rather than
+    # declared_fields, so make sure the hook is populating this
+    assert len(data.attributes["name"]) == 1
+    name = first(data.attributes["name"])
+    assert isinstance(name.value.field, fields.CharField)
+
+    assert str(name.value) == "forms.CharField(...)  # from core.DummyModel.name"
+
+
+def test_model_form_declared_fields():
+    from tests.django_proj.core.models import DummyMixedModelForm  # noqa: PLC0415
+
+    data = classify(DummyMixedModelForm, hooks=hooks)
+
+    # generated fields point back at the model field they came from
+    for field_name in ["code", "name"]:
+        assert len(data.attributes[field_name]) == 1
+        attribute = first(data.attributes[field_name])
+        assert str(attribute.value).endswith(f"# from core.DummyModel.{field_name}")
+
+    # base_fields carries declared fields too, so check form_fields is the one
+    # listing them, without a model field to point at
+    assert len(data.attributes["extra"]) == 1
+    extra = first(data.attributes["extra"])
+    assert str(extra.value) == "forms.IntegerField(...)"
+
+
+def test_model_form_inheritance():
+    from tests.django_proj.core.models import DummyChildModelForm  # noqa: PLC0415
+
+    data = classify(DummyChildModelForm, hooks=hooks)
+
+    assert len(data.attributes["age"]) == 1
+    age = first(data.attributes["age"])
+    assert age.defining_class.name == "DummyChildModelForm"
+
+    # the child regenerates its parent's fields into its own base_fields, so
+    # check name is only listed for the class whose Meta produced it
+    assert len(data.attributes["name"]) == 1
+    name = first(data.attributes["name"])
+    assert name.defining_class.name == "DummyModelForm"
+
+
 def test_model():
     from tests.django_proj.core.models import DummyModel  # noqa: PLC0415
 

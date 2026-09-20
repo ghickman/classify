@@ -30,3 +30,21 @@ class DummyRelatedModel(models.Model):
 
     def __str__(self):
         return str(self.dummy)
+
+
+class DummyModelForm(forms.ModelForm):
+    class Meta:
+        fields = ["name"]  # noqa: RUF012
+        model = DummyModel
+
+
+class DummyChildModelForm(DummyModelForm):
+    age = forms.IntegerField()
+
+
+class DummyMixedModelForm(forms.ModelForm):
+    extra = forms.IntegerField()
+
+    class Meta:
+        fields = ["code", "name"]  # noqa: RUF012
+        model = DummyModel

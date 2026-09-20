@@ -1,5 +1,8 @@
 # Changelog
 
+## 2026.09.3
+- Support Django's ModelForms
+
 ## 2026.09.2
 - Add a hooks system to allow influencing of core mechanics
 - Support Django's models and forms via the hooks system
