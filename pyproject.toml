@@ -4,7 +4,7 @@ build-backend = "uv_build"
 
 [project]
 name = "classify"
-version = "2026.9.3"
+version = "2026.9.4"
 description = "Generate concrete Class documentation for Python Classes"
 readme = "README.md"
 requires-python = ">=3.12"

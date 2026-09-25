@@ -62,7 +62,7 @@ wheels = [
 
 [[package]]
 name = "classify"
-version = "2026.9.2"
+version = "2026.9.4"
 source = { editable = "." }
 dependencies = [
     { name = "attrs" },
