@@ -3,7 +3,7 @@ See everything a Python class inherits, and the code behind it.
 
 Classify walks a class's MRO, gathers every member it inherits (methods, attributes, properties, etc), and displays the class as though it had all been written in one place, source code included.
 
-It outputs to the terminal or HTML, or you can use it as library and do what you want with the results.
+It outputs to the terminal or HTML, or you can use it as a library and do what you want with the results.
 
 
 ## Installation
