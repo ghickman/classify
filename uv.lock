@@ -74,6 +74,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "cogapp" },
     { name = "coverage" },
     { name = "django" },
     { name = "first" },
@@ -99,6 +100,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "cogapp", specifier = ">=3.6.0" },
     { name = "coverage", specifier = ">=7.11.0" },
     { name = "django", specifier = ">=5.2.15" },
     { name = "first", specifier = ">=2.0.2" },
@@ -123,6 +125,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/46/61/de6cd827efad202d7057d93e0fed9294b96952e188f7384832791c7b2254/click-8.3.0.tar.gz", hash = "sha256:e7b8232224eba16f4ebe410c25ced9f7875cb5f3263ffc93cc3e8da705e229c4", size = 276943, upload-time = "2025-09-18T17:32:23.696Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/db/d3/9dcc0f5797f070ec8edf30fbadfb200e71d9db6b84d211e3b2085a7589a0/click-8.3.0-py3-none-any.whl", hash = "sha256:9b9f285302c6e3064f4330c05f05b81945b2a39544279343e6e7c5f27a9baddc", size = 107295, upload-time = "2025-09-18T17:32:22.42Z" },
+]
+
+[[package]]
+name = "cogapp"
+version = "3.6.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/64/ea/4ffa8095e0b675e9961cbdcad002c09d35d4ab76ff99d61a014e9e6bcd53/cogapp-3.6.0.tar.gz", hash = "sha256:ec2a9170bfa644bf0d91996fdb5576c13d7e5e848bb2378a6f92727b48f92604", size = 59742, upload-time = "2025-09-21T15:54:13.553Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/05/1c/23b5110b7cb305f0fe3a5d6809d6804c1cb57d57b59516dbb5e24aaf95fc/cogapp-3.6.0-py3-none-any.whl", hash = "sha256:6ea11c63221f92978d37d8d76208eadeae2a6e4641d323f165738a5464a19d32", size = 30550, upload-time = "2025-09-21T15:54:12.205Z" },
 ]
 
 [[package]]

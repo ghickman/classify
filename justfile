@@ -4,6 +4,9 @@ set fallback
 default:
     @{{ just_executable() }} --list
 
+cog *args:
+    uv run cog {{ args }} README.md
+
 format *args:
     uv run ruff format {{ args }}
 
@@ -17,12 +20,14 @@ type-check *args:
     uv run ty check
 
 check:
+    {{ just_executable() }} cog --check
     {{ just_executable() }} format --check
     {{ just_executable() }} lint
     {{ just_executable() }} toml-sort --check
     {{ just_executable() }} type-check
 
 fix:
+    {{ just_executable() }} cog -r
     {{ just_executable() }} format
     {{ just_executable() }} lint --fix
     {{ just_executable() }} toml-sort --in-place

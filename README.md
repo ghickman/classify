@@ -18,35 +18,70 @@ uv add --dev classify
 ```
 
 
-## Example
+## Examples
 Take a simple class hierarchy:
+<!--[[[cog
+from pathlib import Path
+
+cog.outl("```python")
+cog.out(Path("docs/example.py").read_text())
+cog.outl("```")
+]]]-->
 ```python
-class Parent:
-    def method(self):
-        print("parent")
+class Greeter:
+    def greet(self):
+        return f"Hello, {self.name}"
 
 
-class Child(Parent):
-    def method(self):
-        print("child")
+class Person(Greeter):
+    def __init__(self, name):
+        self.name = name
+
+    def greet(self):
+        return f"Croeso, {self.name}"
 ```
+<!--[[[end]]]-->
 
 pass it to classify via its dotted path:
 ```bash
-classify dotted.path.to.Child
+classify dotted.path.to.Person
 ```
 
-and it shows you everything `Child` has defined on it:
-```bash
-class Child(Parent):
+and it shows you everything `Person` has defined on it, including overridden methods:
+<!--[[[cog
+import os
+import subprocess
 
-    # Defined on: Parent
-    def method(self):
-        print("parent")
+# ⁂ rich pads each line out to the console width, so pin it and trim the result
+output = subprocess.run(
+    ["classify", "docs.example.Person"],
+    check=True,
+    env=os.environ | {"COLUMNS": "100"},
+    stdout=subprocess.PIPE,
+    text=True,
+).stdout
 
-    def method(self):
-        print("child")
+cog.outl("```python")
+for line in output.splitlines():
+    cog.outl(line.rstrip())
+cog.outl("```")
+]]]-->
+```python
+class Person(Greeter):
+
+    def __init__(self, name):
+        self.name = name
+
+    # Defined on: Greeter
+    def greet(self):
+        return f"Hello, {self.name}"
+
+    def greet(self):
+        return f"Croeso, {self.name}"
 ```
+<!--[[[end]]]-->
+
+Curious how it works with a larger class?  Try it out with `classify http.server.SimpleHTTPRequestHandler`, which has 3 parent classes in its inheritance tree.
 
 
 ## Usage

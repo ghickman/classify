@@ -37,6 +37,7 @@ Changelog = "https://github.com/ghickman/classify/blob/main/CHANGELOG.md"
 
 [dependency-groups]
 dev = [
+  "cogapp>=3.6.0",
   "coverage>=7.11.0",
   "django>=5.2.15",
   "first>=2.0.2",
@@ -111,6 +112,9 @@ ignore = [
 lines-after-imports = 2
 
 [tool.ruff.lint.per-file-ignores]
+"docs/example.py" = [
+  "INP001",
+]
 "tests/import_error.py" = [
   "EM101",
   "TRY002",
