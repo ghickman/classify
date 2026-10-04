@@ -115,6 +115,15 @@ lines-after-imports = 2
 "docs/example.py" = [
   "INP001",
 ]
+"docs/helpers.py" = [
+  "INP001",
+]
+"docs/models.py" = [
+  "INP001",
+]
+"docs/settings.py" = [
+  "INP001",
+]
 "tests/import_error.py" = [
   "EM101",
   "TRY002",

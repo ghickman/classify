@@ -21,14 +21,20 @@ from .resolution import resolve
 @click.option(
     "--console-theme",
     default=DEFAULT_THEME,
-    help="Pygments theme to render console output with",
+    help="Theme to render console output with, any Pygments style works here",
+    show_default=True,
 )
-@click.option("--debug", is_flag=True)
-@click.option("--django-settings")
+@click.option("--debug", is_flag=True, help="Show debug logs")
+@click.option(
+    "--django-settings",
+    help="Pass a dotted path to your Django settings when using with a Django project.  classify.contrib.django.settings exists if you need it.",
+)
 @click.option(
     "--renderer",
-    default=Renderer.CONSOLE,
+    default=Renderer.CONSOLE.value,
     type=click.Choice(Renderer, case_sensitive=False),
+    help="How would you like your content rendered?",
+    show_default=True,
 )
 @click.option(
     "-o",
@@ -36,10 +42,22 @@ from .resolution import resolve
     "output_path",
     default=None,
     type=click.Path(file_okay=False, path_type=Path),
-    help="Relative path for output files to be saved",
+    help="Path for output files to be saved",
 )
-@click.option("-p", "--port", default=8000, type=click.INT)
-@click.option("-s", "--serve", is_flag=True)
+@click.option(
+    "-p",
+    "--port",
+    default=8000,
+    type=click.INT,
+    help="The port to serve content at, requires --serve",
+    show_default=True,
+)
+@click.option(
+    "-s",
+    "--serve",
+    is_flag=True,
+    help="Serve HTML content, requires --renderer=html",
+)
 @click.version_option()
 def run(
     klass,
@@ -51,6 +69,9 @@ def run(
     port,
     serve,
 ) -> None:
+    """
+    See everything a Python class inherits, and the code behind it.
+    """
     hooks = NO_HOOKS
     if django_settings:
         setup_django(django_settings)
