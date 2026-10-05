@@ -55,8 +55,8 @@ def docstring(docstring, indent) -> str:
 def methods(methods: dict[str, list[Method]], indent) -> str:
     content = ""
     for definitions in methods.values():
-        for i, method in enumerate(definitions):
-            if len(definitions) > 1 and i == 0:
+        for method in definitions:
+            if len(definitions) > 1 and method != definitions[-1]:
                 content += f"{indent}# Defined on: {method.defining_class.name}\n"
             lines = method.code.split("\n")[:-1]
             for line in lines:
@@ -73,8 +73,8 @@ def methods(methods: dict[str, list[Method]], indent) -> str:
 def properties(properties: dict[str, list[Method]], indent) -> str:
     content = ""
     for definitions in properties.values():
-        for i, prop in enumerate(definitions):
-            if len(definitions) > 1 and i == 0:
+        for prop in definitions:
+            if len(definitions) > 1 and prop != definitions[-1]:
                 content += f"{indent}# Defined on: {prop.defining_class.name}\n"
             lines = prop.code.split("\n")[:-1]
             for line in lines:
@@ -94,14 +94,14 @@ def data_descriptors(data_descriptors: dict[str, list[DataDescriptor]], indent) 
     """
     content = ""
     for definitions in data_descriptors.values():
-        for i, descriptor in enumerate(definitions):
+        for descriptor in definitions:
             for name in ["getter", "setter", "deleter"]:
                 func = getattr(descriptor, name)
 
                 if func is None:
                     continue
 
-                if len(definitions) > 1 and i == 0:
+                if len(definitions) > 1 and descriptor != definitions[-1]:
                     content += f"{indent}# Defined on: {func.defining_class.name}\n"
 
                 lines = func.code.split("\n")[:-1]
