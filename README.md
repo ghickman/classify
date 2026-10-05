@@ -137,7 +137,7 @@ class Article(Model):
     slug = models.SlugField(unique=True)
     title = models.CharField(max_length=200)
 
-    # ... 749 more lines
+    # ... 779 more lines
 ```
 <!--[[[end]]]-->
 

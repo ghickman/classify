@@ -3,7 +3,7 @@ import inspect
 from rich.console import Console
 from rich.syntax import Syntax
 
-from ..dataclasses import Class, DataDescriptor, Method
+from ..dataclasses import Class, DataDescriptor, Method, SimpleClass
 
 
 # define this here so we know what "1" indent is and can remove it for inner
@@ -52,11 +52,11 @@ def docstring(docstring, indent) -> str:
     return f"{quotes}{block}{quotes}"
 
 
-def methods(methods: dict[str, list[Method]], indent) -> str:
+def methods(methods: dict[str, list[Method]], indent, target: SimpleClass) -> str:
     content = ""
     for definitions in methods.values():
         for method in definitions:
-            if len(definitions) > 1 and method != definitions[-1]:
+            if method.defining_class != target:
                 content += f"{indent}# Defined on: {method.defining_class.name}\n"
             lines = method.code.split("\n")[:-1]
             for line in lines:
@@ -70,11 +70,11 @@ def methods(methods: dict[str, list[Method]], indent) -> str:
     return content.strip("\n")
 
 
-def properties(properties: dict[str, list[Method]], indent) -> str:
+def properties(properties: dict[str, list[Method]], indent, target: SimpleClass) -> str:
     content = ""
     for definitions in properties.values():
         for prop in definitions:
-            if len(definitions) > 1 and prop != definitions[-1]:
+            if prop.defining_class != target:
                 content += f"{indent}# Defined on: {prop.defining_class.name}\n"
             lines = prop.code.split("\n")[:-1]
             for line in lines:
@@ -86,7 +86,9 @@ def properties(properties: dict[str, list[Method]], indent) -> str:
     return content
 
 
-def data_descriptors(data_descriptors: dict[str, list[DataDescriptor]], indent) -> str:
+def data_descriptors(
+    data_descriptors: dict[str, list[DataDescriptor]], indent, target: SimpleClass
+) -> str:
     """
     KISS to start: display any methods for a dd as a group
     Loop the definitions of each name
@@ -101,7 +103,7 @@ def data_descriptors(data_descriptors: dict[str, list[DataDescriptor]], indent) 
                 if func is None:
                     continue
 
-                if len(definitions) > 1 and descriptor != definitions[-1]:
+                if func.defining_class != target:
                     content += f"{indent}# Defined on: {func.defining_class.name}\n"
 
                 lines = func.code.split("\n")[:-1]
@@ -115,15 +117,18 @@ def data_descriptors(data_descriptors: dict[str, list[DataDescriptor]], indent) 
 
 
 def stringify(structure: Class, indent: str = " " * DEFAULT_INDENT_WIDTH) -> str:
+    # capture the target Class so we know when to tag members as inherited
+    target = SimpleClass(name=structure.name, module=structure.module)
+
     content = declaration(structure.name, structure.parents, indent)
     content += "\n"
     content += docstring(structure.docstring, indent)
     content += attributes(structure.attributes, indent)
     content += "\n"
     content += classes(structure.classes, indent)
-    content += properties(structure.properties, indent)
-    content += data_descriptors(structure.data_descriptors, indent)
-    content += methods(structure.methods, indent)
+    content += properties(structure.properties, indent, target)
+    content += data_descriptors(structure.data_descriptors, indent, target)
+    content += methods(structure.methods, indent, target)
 
     return content
 
